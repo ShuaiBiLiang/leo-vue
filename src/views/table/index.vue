@@ -1,6 +1,47 @@
 <template>
   <div class="app-container">
+
     <el-table
+      v-loading="listLoading"
+      :data="userList"
+      element-loading-text="Loading"
+      border
+      fit
+      highlight-current-row>
+      <el-table-column align="center" label="ID" width="95">
+        <template slot-scope="scope">
+          {{ scope.$index }}
+        </template>
+      </el-table-column>
+      <el-table-column label="Title">
+        <template slot-scope="scope">
+          {{ scope.row.name }}
+        </template>
+      </el-table-column>
+      <el-table-column label="Author" width="110" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.pwd }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Pageviews" width="110" align="center">
+        <template slot-scope="scope">
+          {{ scope.row.code }}
+        </template>
+      </el-table-column>
+      <el-table-column class-name="status-col" label="Status" width="110" align="center">
+        <template slot-scope="scope">
+          {{ scope.row.cookie }}
+        </template>
+      </el-table-column>
+      <el-table-column align="center" prop="created_at" label="Display_time" width="200">
+        <template slot-scope="scope">
+          <i class="el-icon-time"/>
+          <el-button type="primary" @click="loginLeo">重新登录</el-button>
+          <el-button @click="delRow">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--<el-table
       v-loading="listLoading"
       :data="list"
       element-loading-text="Loading"
@@ -38,12 +79,13 @@
           <span>{{ scope.row.display_time }}</span>
         </template>
       </el-table-column>
-    </el-table>
+    </el-table>-->
   </div>
 </template>
 
 <script>
 import { getList } from '@/api/table'
+import request from '@/utils/request'
 
 export default {
   filters: {
@@ -59,11 +101,13 @@ export default {
   data() {
     return {
       list: null,
-      listLoading: true
+      listLoading: true,
+      userList: null
     }
   },
   created() {
-    this.fetchData()
+    // this.fetchData()
+    this.getCookies()
   },
   methods: {
     fetchData() {
@@ -72,7 +116,35 @@ export default {
         this.list = response.data.items
         this.listLoading = false
       })
+    },
+    getCookies() {
+      debugger
+      request({
+        url: '/getCookies',
+        method: 'post'
+      }).then(response => {
+        // console.log(response)
+        debugger
+        this.userList = response.data
+        this.listLoading = false
+      }
+      )
+    },
+    loginLeo() {
+      /* request({
+        url: '/getCookies',
+        method: 'post'
+      }).then(response => {
+          console.log(response)
+          this.userList = response.data
+          this.listLoading = false
+        }
+      )*/
+    },
+    delRow() {
+
     }
+
   }
 }
 </script>
