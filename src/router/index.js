@@ -54,6 +54,7 @@ export const constantRouterMap = [
       {
         path: 'tree',
         name: 'Tree',
+        hidden: true,
         component: () => import('@/views/tree/index'),
         meta: { title: 'Tree', icon: 'tree' }
       }
@@ -63,6 +64,7 @@ export const constantRouterMap = [
   {
     path: '/form',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'index',
@@ -77,6 +79,7 @@ export const constantRouterMap = [
     path: '/nested',
     component: Layout,
     redirect: '/nested/menu1',
+    hidden: true,
     name: 'Nested',
     meta: {
       title: 'Nested',
@@ -134,6 +137,7 @@ export const constantRouterMap = [
   {
     path: 'external-link',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
