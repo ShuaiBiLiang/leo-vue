@@ -8,7 +8,7 @@
     <div v-if="showDialog" class="">
       <el-form ref="form" :model="form" label-width="120px">
         <el-form-item label="账号 密码 验证码">
-          <el-input v-model="form.desc" type="textarea" placeholder="请输入 ‘账号 密码 验证码’ 如果有多个，请换行。"/>
+          <el-input v-model="form.userInfo" type="textarea" placeholder="请输入 ‘账号 密码 验证码’ 如果有多个，请换行。"/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="getCookies">提交</el-button>
@@ -18,7 +18,7 @@
     </div>
     <br>
     <span><el-button type="primary" @click="batchCommit">批量提交</el-button></span>
-    <span style="color:red;">{{ currentPrice }}</span>
+    <span style="color:red;">当前价格：{{ currentPrice }}   &nbsp;&nbsp; {{ currentPriceTime }}</span>
     <el-table
       v-loading="listLoading"
       :data="userList"
@@ -52,7 +52,8 @@
       </el-table-column>
       <el-table-column class-name="status-col" label="是否登录" width="110" align="center">
         <template slot-scope="scope">
-          {{ scope.row.cookie }}
+          <span v-if="scope.row.loginError">登录失败：{{ scope.row.cookie }}</span>
+          <span v-else>已登录</span>
         </template>
       </el-table-column>
       <el-table-column class-name="status-col" label="价格" width="110" align="center">
@@ -65,13 +66,13 @@
           <el-input v-model.trim="scope.row.qt" :maxlength="10" size="small" @change="showQt(scope.row.qt)"/>
         </template>
       </el-table-column>
-      <el-table-column align="center" prop="created_at" label="Display_time" width="200">
+      <el-table-column align="center" prop="created_at" label="操作" width="400">
         <template slot-scope="scope">
-          <i class="el-icon-time"/>
-          <el-button type="mini" @click="loginLeo">重新登录</el-button>
-          <el-button @click="delRow(scope.row, scope.$index)">删除</el-button>
-          <el-button @click="commitRow(scope.row, scope.$index)">提交</el-button>
-          <el-button @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
+          <!--<i class="el-icon-time"/>-->
+          <el-button size="mini" @click="loginLeo">重新登录</el-button>
+          <el-button size="mini" @click="delRow(scope.row, scope.$index)">删除</el-button>
+          <el-button size="mini" @click="commitRow(scope.row, scope.$index)">提交</el-button>
+          <el-button size="mini" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -142,7 +143,8 @@ export default {
         userInfo: ''
       },
       multipleSelection: [],
-      currentPrice: null
+      currentPrice: null,
+      currentPriceTime: null
     }
   },
   created() {
@@ -161,7 +163,8 @@ export default {
       debugger
       request({
         url: '/getCookies',
-        method: 'post'
+        method: 'post',
+        data: { userInfo: this.form.userInfo }
       }).then(response => {
         // console.log(response)
         debugger
@@ -196,45 +199,80 @@ export default {
       this.multipleSelection = val
     },
     batchCommit() {
+      const dataArray = []
       this.multipleSelection.forEach(row => {
-        console.log(row.name + row.pwd)
+        const data = { name: row.name, cookie: row.cookie, price: row.price, num: row.qt }
+        dataArray.push(data)
+      })
+      request({
+        url: '/commit',
+        method: 'post',
+        data: dataArray
+      }).then(response => {
+        debugger
+        this.$message({
+          message: '成功!',
+          type: 'warning'
+        })
+      }
+      ).catch(() => {
+        debugger
+        this.$message({
+          message: '成功!',
+          type: 'warning'
+        })
       })
     },
     commitRow(row, index) {
-      /* const name = row.name
-      const pwd = row.pwd
-      const cookie = row.cookie
-      const price = row.price
-      const num = row.num*/
       debugger
       request({
-        url: '/getCookies',
-        method: 'post'
+        url: '/commit',
+        method: 'post',
+        data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
       }).then(response => {
-        // console.log(response)
         debugger
-        this.userList = response.data
-        this.listLoading = false
-        this.showDialog = false
+        let textHtml = '';
+        response.data.forEach(function(value,index,array){
+          textHtml += value.name+":"+value.msg +"<br/>";
+          console.log(value.name+":"+value.msg);
+        })
+        this.$message({
+          message: '成功!',
+          type: 'warning'
+        })
+
+        this.$confirm(textHtml, '提示', {
+            confirmButtonText: '确 定',
+            cancelButtonText: '取 消',
+            closeOnClickModal: false,
+            dangerouslyUseHTMLString: true,
+            type: 'warning'
+          }).then(() => {
+
+          }).catch(() => {
+
+          });
       }
       ).catch(() => {
-        this.listLoading = false
+        debugger
+        this.$message({
+          message: '成功!',
+          type: 'warning'
+        })
       })
     },
     refreshRow(row, index) {
-      /* const name = row.name
-      const pwd = row.pwd
-      const cookie = row.cookie
-      const price = row.price
-      const num = row.num*/
       debugger
       request({
-        url: '/leo/price',
-        method: 'post'
+        url: '/price',
+        method: 'post',
+        data: { userInfo: row.cookie }
       }).then(response => {
-        // console.log(response)
         debugger
         this.currentPrice = response.data.price
+        const time1 = new Date().format("yyyy-MM-dd HH:mm:ss");
+        console.log(time1)
+        this.currentPriceTime = time1
       }
       ).catch(() => {
         this.listLoading = false
