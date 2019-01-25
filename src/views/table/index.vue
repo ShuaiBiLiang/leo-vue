@@ -17,8 +17,13 @@
       </el-form>
     </div>
     <br>
-    <span><el-button type="primary" @click="batchCommit">批量提交</el-button></span>
-    <span style="color:red;">当前价格：{{ currentPrice }}   &nbsp;&nbsp; {{ currentPriceTime }}</span>
+    <div style="margin: 0 auto;"><span style="color:red;">当前价格：{{ currentPrice }}   &nbsp;&nbsp; {{ currentPriceTime }}</span>
+    </div>
+    <span><el-button type="primary" @click="batchCommit" style="float:right;">批量提交</el-button></span>
+    <div>
+      <el-input style="width:150px" v-model="batchPrice" placeholder="请输入价格"></el-input><el-button @click="batchUpdatePrice">批量填写价格</el-button>
+      <el-input style="width:150px" v-model="batchQt" placeholder="请输入数量"></el-input><el-button @click="batchUpdateQt">批量填写数量</el-button>
+    </div>
     <el-table
       v-loading="listLoading"
       :data="userList"
@@ -61,7 +66,7 @@
           <el-input v-model.trim="scope.row.price" :maxlength="10" size="small" @change="showQt(scope.row.price)"/>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="数量" width="110" align="center">
+      <el-table-column class-name="status-col" label="数量" min="10" width="110" align="center">
         <template slot-scope="scope">
           <el-input v-model.trim="scope.row.qt" :maxlength="10" size="small" @change="showQt(scope.row.qt)"/>
         </template>
@@ -122,6 +127,8 @@
 import { getList } from '@/api/table'
 import request from '@/utils/request'
 
+
+
 export default {
   filters: {
     statusFilter(status) {
@@ -144,7 +151,9 @@ export default {
       },
       multipleSelection: [],
       currentPrice: null,
-      currentPriceTime: null
+      currentPriceTime: null,
+      batchPrice:'',
+      batchQt:''
     }
   },
   created() {
@@ -200,6 +209,13 @@ export default {
     },
     batchCommit() {
       const dataArray = []
+      if(this.multipleSelection.length === 0){
+        this.$message({
+          message: '未选中记录!',
+          type: 'warning'
+        })
+        return;
+      }
       this.multipleSelection.forEach(row => {
         const data = { name: row.name, cookie: row.cookie, price: row.price, num: row.qt }
         dataArray.push(data)
@@ -209,11 +225,25 @@ export default {
         method: 'post',
         data: dataArray
       }).then(response => {
-        debugger
-        this.$message({
-          message: '成功!',
-          type: 'warning'
-        })
+          debugger
+          let textHtml = '';
+          response.data.forEach(function(value,index,array){
+            textHtml += value.name+":"+value.msg +"<br/>";
+            console.log(value.name+":"+value.msg);
+          })
+
+
+          this.$confirm(textHtml, '提示', {
+            confirmButtonText: '确 定',
+            cancelButtonText: '取 消',
+            closeOnClickModal: false,
+            dangerouslyUseHTMLString: true,
+            type: 'warning'
+          }).then(() => {
+
+          }).catch(() => {
+
+          });
       }
       ).catch(() => {
         debugger
@@ -225,6 +255,12 @@ export default {
     },
     commitRow(row, index) {
       debugger
+      if(row.qt<10){
+        this.$message({
+          message: '数量不能小于10',
+          type: 'warning'
+        })
+      }
       request({
         url: '/commit',
         method: 'post',
@@ -268,14 +304,29 @@ export default {
         method: 'post',
         data: { userInfo: row.cookie }
       }).then(response => {
-        debugger
-        this.currentPrice = response.data.price
-        const time1 = new Date().format("yyyy-MM-dd HH:mm:ss");
-        console.log(time1)
-        this.currentPriceTime = time1
-      }
+          debugger
+          this.currentPrice = response.data.price
+          this.batchPrice = this.currentPrice
+          const time1 = new Date().Format("yyyy-MM-dd hh:mm:ss");
+          console.log(time1)
+          this.currentPriceTime = time1
+        }
       ).catch(() => {
         this.listLoading = false
+      })
+    },
+    batchUpdatePrice() {
+      let currentPrice = this.batchPrice;
+      this.userList.forEach((row,index,array) => {
+        row.price = currentPrice;
+        this.$set(array,index,row)
+      })
+    },
+    batchUpdateQt() {
+      let currentQt = this.batchQt;
+      this.userList.forEach((row,index,array) => {
+        row.qt = currentQt;
+        this.$set(array,index,row)
       })
     }
   }
