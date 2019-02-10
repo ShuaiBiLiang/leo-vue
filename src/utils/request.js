@@ -6,7 +6,7 @@ import { getToken } from '@/utils/auth'
 // 创建axios实例
 const service = axios.create({
   baseURL: process.env.BASE_API, // api 的 base_url
-  timeout: 60000 // 请求超时时间
+  timeout: 600000 // 请求超时时间
 })
 
 // 对Date的扩展，将 Date 转化为指定格式的String

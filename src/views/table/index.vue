@@ -19,12 +19,15 @@
     <br>
     <div style="margin: 0 auto;"><span style="color:red;">当前价格：{{ currentPrice }}   &nbsp;&nbsp; {{ currentPriceTime }}</span>
     </div>
+    <span><el-button type="primary" @click="batchCancelOrder" style="float:right;">批量取消订单</el-button></span>
+    <span><el-button type="primary" @click="batchShowOrder" style="float:right;">批量查询订单</el-button></span>
     <span><el-button type="primary" @click="batchCommit" style="float:right;">批量提交</el-button></span>
+
     <div>
       <el-input style="width:150px" v-model="batchPrice" placeholder="请输入价格"></el-input><el-button @click="batchUpdatePrice">批量填写价格</el-button>
       <el-input style="width:150px" v-model="batchQt" placeholder="请输入数量"></el-input><el-button @click="batchUpdateQt">批量填写数量</el-button>
     </div>
-    <el-table
+    <el-table ref="singleTable1"
       v-loading="listLoading"
       :data="userList"
       element-loading-text="Loading"
@@ -71,6 +74,11 @@
           <el-input v-model.trim="scope.row.qt" :maxlength="10" size="small" @change="showQt(scope.row.qt)"/>
         </template>
       </el-table-column>
+      <el-table-column type="expand" width="20">
+        <template slot-scope="scope">
+          <paydetail :list="scope.row.list"></paydetail>
+        </template>
+      </el-table-column>
       <el-table-column align="center" prop="created_at" label="操作" width="400">
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
@@ -78,6 +86,8 @@
           <el-button size="mini" @click="delRow(scope.row, scope.$index)">删除</el-button>
           <el-button size="mini" @click="commitRow(scope.row, scope.$index)">提交</el-button>
           <el-button size="mini" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
+          <el-button size="mini" @click="showOrders(scope.row, scope.$index)">查看订单</el-button>
+          <el-button size="mini" @click="cancelOrders(scope.row, scope.$index)">取消订单</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -126,10 +136,11 @@
 <script>
 import { getList } from '@/api/table'
 import request from '@/utils/request'
-
+import paydetail from './paydetail';
 
 
 export default {
+  components: {paydetail},
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -143,7 +154,7 @@ export default {
   data() {
     return {
       list: null,
-      listLoading: true,
+      listLoading: false,
       userList: null,
       showDialog: true,
       form: {
@@ -170,6 +181,7 @@ export default {
     },
     getCookies() {
       debugger
+      this.listLoading = true
       request({
         url: '/getCookies',
         method: 'post',
@@ -208,6 +220,7 @@ export default {
       this.multipleSelection = val
     },
     batchCommit() {
+
       const dataArray = []
       if(this.multipleSelection.length === 0){
         this.$message({
@@ -220,6 +233,7 @@ export default {
         const data = { name: row.name, cookie: row.cookie, price: row.price, num: row.qt }
         dataArray.push(data)
       })
+      this.listLoading = true
       request({
         url: '/commit',
         method: 'post',
@@ -231,7 +245,7 @@ export default {
             textHtml += value.name+":"+value.msg +"<br/>";
             console.log(value.name+":"+value.msg);
           })
-
+          this.listLoading = false
 
           this.$confirm(textHtml, '提示', {
             confirmButtonText: '确 定',
@@ -246,12 +260,39 @@ export default {
           });
       }
       ).catch(() => {
+        this.listLoading = false
         debugger
         this.$message({
           message: '成功!',
           type: 'warning'
         })
       })
+    },
+    batchShowOrder() {
+      if(this.multipleSelection.length === 0){
+        this.$message({
+          message: '未选中记录!',
+          type: 'warning'
+        })
+        return;
+      }
+      this.multipleSelection.forEach(row => {
+        this.showOrders(row);
+      })
+
+    },
+    batchCancelOrder() {
+      if(this.multipleSelection.length === 0){
+        this.$message({
+          message: '未选中记录!',
+          type: 'warning'
+        })
+        return;
+      }
+      this.multipleSelection.forEach(row => {
+        this.cancelOrders(row);
+      })
+
     },
     commitRow(row, index) {
       debugger
@@ -261,12 +302,14 @@ export default {
           type: 'warning'
         })
       }
+      this.listLoading = true
       request({
         url: '/commit',
         method: 'post',
         data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
       }).then(response => {
         debugger
+          this.listLoading = false
         let textHtml = '';
         response.data.forEach(function(value,index,array){
           textHtml += value.name+":"+value.msg +"<br/>";
@@ -291,6 +334,7 @@ export default {
       }
       ).catch(() => {
         debugger
+        this.listLoading = false
         this.$message({
           message: '成功!',
           type: 'warning'
@@ -299,11 +343,13 @@ export default {
     },
     refreshRow(row, index) {
       debugger
+      this.listLoading = true
       request({
         url: '/price',
         method: 'post',
         data: { userInfo: row.cookie }
       }).then(response => {
+        this.listLoading = false
           debugger
           this.currentPrice = response.data.price
           this.batchPrice = this.currentPrice
@@ -314,6 +360,81 @@ export default {
       ).catch(() => {
         this.listLoading = false
       })
+    },
+    showOrders(row, index) {
+      debugger
+      this.$refs.singleTable1.toggleRowExpansion(row,false);
+      request({
+        url: '/getOrders',
+        method: 'post',
+        data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
+      }).then(response => {
+          debugger
+        this.userList.forEach((row,index,array) => {
+          let name = row.name;
+          if(response.data[name]){
+            row.list = response.data[name];
+          }
+        })
+        this.$refs.singleTable1.toggleRowExpansion(row,true);
+
+          this.$message({
+            message: '成功!',
+            type: 'warning'
+          })
+          //
+          // this.$confirm(textHtml, '提示', {
+          //   confirmButtonText: '确 定',
+          //   cancelButtonText: '取 消',
+          //   closeOnClickModal: false,
+          //   dangerouslyUseHTMLString: true,
+          //   type: 'warning'
+          // }).then(() => {
+          //
+          // }).catch(() => {
+          //
+          // });
+        }
+      ).catch(() => {
+        debugger
+        this.$message({
+          message: '订单查询失败!',
+          type: 'warning'
+        })
+      })
+    },
+    cancelOrders(row, index) {
+      debugger
+      this.$refs.singleTable1.toggleRowExpansion(row,false);
+      let orders = [];
+      let cookie = row.cookie;
+      if(row.list){
+        row.list.forEach(function(value,index,array){
+          let order = {cookie:cookie, id:value.id};
+          orders.push(order);
+        })
+
+        request({
+          url: '/cancelOrders',
+          method: 'post',
+          data: orders
+        }).then(response => {
+            debugger
+            this.$message({
+              message: '成功!',
+              type: 'warning'
+            })
+            this.showOrders(row,index)
+          }
+        ).catch(() => {
+          debugger
+          this.$message({
+            message: '失败!',
+            type: 'warning'
+          })
+        })
+      }
+
     },
     batchUpdatePrice() {
       let currentPrice = this.batchPrice;
