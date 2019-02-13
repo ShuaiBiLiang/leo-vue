@@ -23,13 +23,13 @@
       status: "Active"
       volume: "100" -->
 
-      <el-table-column prop="cost" label="cost" width="100" show-overflow-tooltip/>
-      <el-table-column prop="dateTime" label="dateTime" min-width="100" show-overflow-tooltip/>
       <el-table-column prop="id" label="id" min-width="60" show-overflow-tooltip/>
       <el-table-column prop="orderType" label="orderType" min-width="60" show-overflow-tooltip/>
       <el-table-column prop="price" label="price" width="100" show-overflow-tooltip/>
-      <el-table-column prop="status" label="status" width="60" show-overflow-tooltip/>
+      <el-table-column prop="cost" label="cost" width="100" show-overflow-tooltip/>
       <el-table-column prop="volume" label="volume" width="60" align="right" show-overflow-tooltip/>
+      <el-table-column prop="status" label="status" width="60" show-overflow-tooltip/>
+      <el-table-column prop="dateTime" label="dateTime" min-width="100" show-overflow-tooltip/>
     </el-table>
     </div>
     <div v-else>
