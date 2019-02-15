@@ -51,6 +51,9 @@
       <el-table-column label="密码" width="110" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.pwd }}</span>
+          <el-input size="small"
+                    class="input60" :maxlength=20
+                    v-model.trim="scope.row.pwd"></el-input>
         </template>
       </el-table-column>
       <el-table-column label="验证码" width="110" align="center">
@@ -82,7 +85,7 @@
       <el-table-column align="center" prop="created_at" label="操作" width="400">
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
-          <el-button size="mini" @click="loginLeo">重新登录</el-button>
+          <el-button size="mini" @click="loginLeo(scope.row, scope.$index)">重新登陆</el-button>
           <el-button size="mini" @click="delRow(scope.row, scope.$index)">删除</el-button>
           <el-button size="mini" @click="commitRow(scope.row, scope.$index)">提交</el-button>
           <el-button size="mini" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
@@ -164,7 +167,8 @@ export default {
       currentPrice: null,
       currentPriceTime: null,
       batchPrice:'',
-      batchQt:''
+      batchQt:'',
+      timeOutVar:null
     }
   },
   created() {
@@ -189,16 +193,28 @@ export default {
       }).then(response => {
         // console.log(response)
         debugger
+        this.timeoutEnd()
         this.userList = response.data
         this.listLoading = false
         this.showDialog = false
+        this.timeoutBegin();
       }
       ).catch(() => {
         this.listLoading = false
       })
     },
-    loginLeo() {
-      /* request({
+    loginLeo(row, index) {
+      let userinfo = row.name+' '+row.pwd+' '+row.code;
+      request({
+        url: '/getCookies',
+        method: 'post',
+        data: { userInfo: userinfo }
+      }).then(response => {
+        row = response.data[0];
+      })
+      /*
+      data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
+      request({
         url: '/getCookies',
         method: 'post'
       }).then(response => {
@@ -449,6 +465,38 @@ export default {
         row.qt = currentQt;
         this.$set(array,index,row)
       })
+    },
+    timeoutBegin(){
+      let orders = [];
+      this.userList.forEach(function(row,index,array){
+        let order = { name: row.name, cookie: row.cookie };
+        orders.push(order);
+      })
+
+      request({
+        url: '/activeCookie',
+        method: 'post',
+        data: orders
+      }).then(response => {
+          debugger
+          this.$message({
+            message: '发送请求成功，保持登陆信息有效性!',
+            type: 'warning'
+          })
+        }
+      ).catch(() => {
+        debugger
+        this.$message({
+          message: '失败!',
+          type: 'warning'
+        })
+      })
+      this.timeOutVar = setTimeout(() => {
+        this.timeoutBegin();
+      }, 20000);
+    },
+    timeoutEnd(){
+      clearTimeout(this.timeOutVar)
     }
   }
 }
