@@ -29,8 +29,8 @@ export const constantRouterMap = [
   {
     path: '/',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Dashboard',
+    redirect: '/leoWorkbench/index',
+    name: '>>',
     hidden: true,
     children: [{
       path: 'dashboard',
@@ -39,6 +39,22 @@ export const constantRouterMap = [
   },
 
   {
+    path: '/leoWorkbench',
+    component: Layout,
+    // redirect: '/example/table',
+    // name: 'LEO',
+    meta: { title: 'Example', icon: 'example' },
+    children: [
+      {
+        path: 'index',
+        name: 'leoMain',
+        component: () => import('@/views/table/index'),
+        meta: { title: 'LEO工作台', icon: 'table' }
+      }
+    ]
+  },
+
+  /*{
     path: '/example',
     component: Layout,
     redirect: '/example/table',
@@ -59,12 +75,12 @@ export const constantRouterMap = [
         meta: { title: 'Tree', icon: 'tree' }
       }
     ]
-  },
+  },*/
 
   {
     path: '/form',
     component: Layout,
-    hidden: true,
+    hidden: false,
     children: [
       {
         path: 'index',

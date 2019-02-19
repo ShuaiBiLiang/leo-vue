@@ -16,17 +16,19 @@
         </el-form-item>
       </el-form>
     </div>
-    <br>
-    <div style="margin: 0 auto;"><span style="color:red;">当前价格：{{ currentPrice }}   &nbsp;&nbsp; {{ currentPriceTime }}</span>
-    </div>
-    <span><el-button type="primary" @click="batchCancelOrder" style="float:right;">批量取消订单</el-button></span>
-    <span><el-button type="primary" @click="batchShowOrder" style="float:right;">批量查询订单</el-button></span>
-    <span><el-button type="primary" @click="batchCommit" style="float:right;">批量提交</el-button></span>
+    <div style="margin: 10px 0px;">
+      <div style="margin: 0 auto;"><span style="color:red;">当前价格：{{ currentPrice }}   &nbsp;&nbsp; {{ currentPriceTime }}</span>
+      </div>
+      <span><el-button type="primary" @click="batchCancelOrder" style="float:right;margin:0 5px" size="medium" round>批量取消订单</el-button></span>
+      <span><el-button type="primary" @click="batchShowOrder" style="float:right;margin:0 5px" size="medium" round>批量查询订单</el-button></span>
+      <span><el-button type="primary" @click="batchCommit" style="float:right;margin:0 5px" size="medium" round>批量提交</el-button></span>
 
-    <div>
-      <el-input style="width:150px" v-model="batchPrice" placeholder="请输入价格"></el-input><el-button @click="batchUpdatePrice">批量填写价格</el-button>
-      <el-input style="width:150px" v-model="batchQt" placeholder="请输入数量"></el-input><el-button @click="batchUpdateQt">批量填写数量</el-button>
+      <div>
+        <el-input style="width:150px" v-model="batchPrice" placeholder="请输入价格"></el-input><el-button @click="batchUpdatePrice" style="margin:0 5px" size="medium" round>批量填写价格</el-button>
+        <el-input style="width:150px" v-model="batchQt" placeholder="请输入数量"></el-input><el-button @click="batchUpdateQt" style="margin:0 5px" size="medium" round>批量填写数量</el-button>
+      </div>
     </div>
+
     <el-table ref="singleTable1"
       v-loading="listLoading"
       :data="userList"
@@ -86,12 +88,12 @@
       <el-table-column align="center" prop="created_at" label="操作" width="400">
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
-          <el-button size="mini" @click="loginLeo(scope.row, scope.$index)">重新登陆</el-button>
-          <el-button size="mini" @click="delRow(scope.row, scope.$index)">删除</el-button>
-          <el-button size="mini" @click="commitRow(scope.row, scope.$index)">提交</el-button>
-          <el-button size="mini" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
-          <el-button size="mini" @click="showOrders(scope.row, scope.$index)">查看订单</el-button>
-          <el-button size="mini" @click="cancelOrders(scope.row, scope.$index)">取消订单</el-button>
+          <el-button  type="text" @click="loginLeo(scope.row, scope.$index)">重新登陆</el-button>
+          <el-button  type="text" @click="delRow(scope.row, scope.$index)">删除</el-button>
+          <el-button  type="text" @click="commitRow(scope.row, scope.$index)">提交</el-button>
+          <el-button  type="text" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
+          <el-button  type="text" @click="showOrders(scope.row, scope.$index)">查看订单</el-button>
+          <el-button  type="text" @click="cancelOrders(scope.row, scope.$index)">取消订单</el-button>
         </template>
       </el-table-column>
     </el-table>
