@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-      <h3 class="title">vue-admin-template</h3>
+      <h3 class="title">leo-工作台</h3>
       <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
@@ -59,7 +59,7 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: 'admin'
+        password: '123456'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -95,6 +95,10 @@ export default {
             this.$router.push({ path: this.redirect || '/' })
           }).catch(() => {
             this.loading = false
+            this.$message({
+              message: '用户名或密码错误!',
+              type: 'warning'
+            })
           })
         } else {
           console.log('error submit!!')

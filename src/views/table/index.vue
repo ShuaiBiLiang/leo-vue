@@ -48,17 +48,18 @@
           {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column label="密码" width="110" align="center">
+      <el-table-column label="密码" width="210" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.pwd }}</span>
-          <el-input size="small"
-                    class="input60" :maxlength=20
+          <!--<span>{{ scope.row.pwd }}</span>-->
+          <el-input :maxlength=20
                     v-model.trim="scope.row.pwd"></el-input>
         </template>
       </el-table-column>
       <el-table-column label="验证码" width="110" align="center">
         <template slot-scope="scope">
-          {{ scope.row.code }}
+          <!--{{ scope.row.code }}-->
+          <el-input :maxlength=20
+                    v-model.trim="scope.row.code"></el-input>
         </template>
       </el-table-column>
       <el-table-column class-name="status-col" label="是否登录" width="110" align="center">
@@ -184,6 +185,7 @@ export default {
       })
     },
     getCookies() {
+      this.timeoutEnd()
       debugger
       this.listLoading = true
       request({
@@ -210,7 +212,13 @@ export default {
         method: 'post',
         data: { userInfo: userinfo }
       }).then(response => {
-        row = response.data[0];
+        debugger
+        // this.$nextTick(_ => {
+          row = response.data[0];
+        this.$set(this.userList,index,row)
+        // });
+
+        // Vue.set(row.password,itemLen,{message:"Test add attr",id:itemLen});
       })
       /*
       data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
@@ -493,7 +501,7 @@ export default {
       })
       this.timeOutVar = setTimeout(() => {
         this.timeoutBegin();
-      }, 20000);
+      }, 60000);
     },
     timeoutEnd(){
       clearTimeout(this.timeOutVar)
