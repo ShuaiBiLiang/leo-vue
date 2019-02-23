@@ -4,15 +4,15 @@
     <breadcrumb />
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
-        <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
+        <svg-icon icon-class="user2" />
         <i class="el-icon-caret-bottom"/>
       </div>
       <el-dropdown-menu slot="dropdown" class="user-dropdown">
-        <router-link class="inlineBlock" to="/">
+        <!--<router-link class="inlineBlock" to="/">
           <el-dropdown-item>
             Home
           </el-dropdown-item>
-        </router-link>
+        </router-link>-->
         <el-dropdown-item divided>
           <span style="display:block;" @click="logout">LogOut</span>
         </el-dropdown-item>
@@ -55,6 +55,9 @@ export default {
   height: 50px;
   line-height: 50px;
   border-radius: 0px !important;
+  .avatar-wrapper{
+    font-size:35px;
+  }
   .hamburger-container {
     line-height: 58px;
     height: 50px;

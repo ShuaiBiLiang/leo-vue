@@ -57,16 +57,16 @@ service.interceptors.response.use(
     const res = response.data
     debugger
     if (!res.success) {
-      Message({
-        message: res.message,
-        type: 'error',
-        duration: 5 * 1000
-      })
+      // Message({
+      //   message: res.message,
+      //   type: 'error',
+      //   duration: 5 * 1000
+      // })
 
       // 50008:非法的token; 50012:其他客户端登录了;  50014:Token 过期了;
       if (res.status === 99 ) {
         MessageBox.confirm(
-          '你已被登出，可以取消继续留在该页面，或者重新登录',
+          res.msg,
           '确定登出',
           {
             confirmButtonText: '重新登录',
@@ -79,7 +79,7 @@ service.interceptors.response.use(
           })
         })
       }
-      return Promise.reject('error')
+      return Promise.reject(res)
     } else {
       return response.data
     }

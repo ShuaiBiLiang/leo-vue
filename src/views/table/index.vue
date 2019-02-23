@@ -141,6 +141,7 @@
 
 <script>
 import { getList } from '@/api/table'
+import { Message, MessageBox } from 'element-ui'
 import request from '@/utils/request'
 import paydetail from './paydetail';
 
@@ -191,7 +192,7 @@ export default {
       debugger
       this.listLoading = true
       request({
-        url: '/getCookies',
+        url: '/leo/getCookies',
         method: 'post',
         data: { userInfo: this.form.userInfo }
       }).then(response => {
@@ -203,14 +204,28 @@ export default {
         this.showDialog = false
         this.timeoutBegin();
       }
-      ).catch(() => {
+      ).catch((res) => {
+        console.log(res.status);
+        if (res.status === 88 ) {
+          MessageBox.confirm(
+            res.msg,
+            '确定',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+          ).then(() => {
+
+          })
+        }
         this.listLoading = false
       })
     },
     loginLeo(row, index) {
       let userinfo = row.name+' '+row.pwd+' '+row.code;
       request({
-        url: '/getCookies',
+        url: '/leo/getCookies',
         method: 'post',
         data: { userInfo: userinfo }
       }).then(response => {
@@ -225,7 +240,7 @@ export default {
       /*
       data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
       request({
-        url: '/getCookies',
+        url: '/leo/getCookies',
         method: 'post'
       }).then(response => {
           console.log(response)
@@ -261,7 +276,7 @@ export default {
       })
       this.listLoading = true
       request({
-        url: '/commit',
+        url: '/leo/commit',
         method: 'post',
         data: dataArray
       }).then(response => {
@@ -330,7 +345,7 @@ export default {
       }
       this.listLoading = true
       request({
-        url: '/commit',
+        url: '/leo/commit',
         method: 'post',
         data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
       }).then(response => {
@@ -371,7 +386,7 @@ export default {
       debugger
       this.listLoading = true
       request({
-        url: '/price',
+        url: '/leo/price',
         method: 'post',
         data: { userInfo: row.cookie }
       }).then(response => {
@@ -391,7 +406,7 @@ export default {
       debugger
       this.$refs.singleTable1.toggleRowExpansion(row,false);
       request({
-        url: '/getOrders',
+        url: '/leo/getOrders',
         method: 'post',
         data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
       }).then(response => {
@@ -441,7 +456,7 @@ export default {
         })
 
         request({
-          url: '/cancelOrders',
+          url: '/leo/cancelOrders',
           method: 'post',
           data: orders
         }).then(response => {
@@ -484,7 +499,7 @@ export default {
       })
 
       request({
-        url: '/activeCookie',
+        url: '/leo/activeCookie',
         method: 'post',
         data: orders
       }).then(response => {

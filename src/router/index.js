@@ -80,13 +80,26 @@ export const constantRouterMap = [
   {
     path: '/form',
     component: Layout,
-    hidden: false,
+    hidden: true,
     children: [
       {
         path: 'index',
         name: 'Form',
         component: () => import('@/views/form/index'),
         meta: { title: 'Form', icon: 'form' }
+      }
+    ]
+  },
+  {
+    path: '/user',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: '用户管理',
+        component: () => import('@/views/user/index'),
+        meta: { title: '用户管理', icon: 'form' }
       }
     ]
   },

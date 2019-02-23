@@ -93,12 +93,20 @@ export default {
           this.$store.dispatch('Login', this.loginForm).then(() => {
             this.loading = false
             this.$router.push({ path: this.redirect || '/' })
-          }).catch(() => {
+          }).catch((res) => {
             this.loading = false
-            this.$message({
-              message: '用户名或密码错误!',
-              type: 'warning'
-            })
+            if(res.status && res.status === 98){
+              this.$message({
+                message: res.msg,
+                type: 'warning'
+              })
+            }else {
+              this.$message({
+                message: '用户名或密码错误!',
+                type: 'warning'
+              })
+            }
+
           })
         } else {
           console.log('error submit!!')
