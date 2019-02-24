@@ -8,11 +8,8 @@
     <div v-if="showDialog" class="">
       <el-form ref="form" :model="form" label-width="120px">
         <el-form-item label="账号 密码 验证码">
-          <el-input v-model="form.userInfo" type="textarea" placeholder="请输入 ‘账号 密码 验证码’ 如果有多个，请换行。"/>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="getCookies">提交</el-button>
-          <!--<el-button @click="onCancel">Cancel</el-button>-->
+          <el-input v-model="form.userInfo" style="width:50%" type="textarea" placeholder="请输入 ‘账号 密码 验证码’ 如果有多个，请换行。"/>
+          <el-button type="primary" style="width:80px" @click="getCookies">提交</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -40,17 +37,17 @@
       <el-table-column
         type="selection"
         width="55"/>
-      <el-table-column align="center" label="序号" width="95">
+      <el-table-column align="center" label="序号" width="70">
         <template slot-scope="scope">
           {{ scope.$index+1 }}
         </template>
       </el-table-column>
-      <el-table-column label="账号名">
+      <el-table-column label="账号名"  width="120">
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column label="密码" width="210" align="center">
+      <el-table-column label="密码" width="140" align="center">
         <template slot-scope="scope">
           <!--<span>{{ scope.row.pwd }}</span>-->
           <el-input :maxlength=20
@@ -75,7 +72,7 @@
           <el-input v-model.trim="scope.row.price" :maxlength="10" size="small" @change="showQt(scope.row.price)"/>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="数量" min="10" width="110" align="center">
+      <el-table-column class-name="status-col" label="数量" min="10" width="90" align="center">
         <template slot-scope="scope">
           <el-input v-model.trim="scope.row.qt" :maxlength="10" size="small" @change="showQt(scope.row.qt)"/>
         </template>
@@ -85,7 +82,7 @@
           <paydetail :list="scope.row.list"></paydetail>
         </template>
       </el-table-column>
-      <el-table-column align="center" prop="created_at" label="操作" width="400">
+      <el-table-column align="center" prop="created_at" label="操作">
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
           <el-button  type="text" @click="loginLeo(scope.row, scope.$index)">重新登陆</el-button>
@@ -97,45 +94,9 @@
         </template>
       </el-table-column>
     </el-table>
-    <!--<el-table
-      v-loading="listLoading"
-      :data="list"
-      element-loading-text="Loading"
-      border
-      fit
-      highlight-current-row>
-      <el-table-column align="center" label="ID" width="95">
-        <template slot-scope="scope">
-          {{ scope.$index }}
-        </template>
-      </el-table-column>
-      <el-table-column label="Title">
-        <template slot-scope="scope">
-          {{ scope.row.title }}
-        </template>
-      </el-table-column>
-      <el-table-column label="Author" width="110" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.author }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Pageviews" width="110" align="center">
-        <template slot-scope="scope">
-          {{ scope.row.pageviews }}
-        </template>
-      </el-table-column>
-      <el-table-column class-name="status-col" label="Status" width="110" align="center">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" prop="created_at" label="Display_time" width="200">
-        <template slot-scope="scope">
-          <i class="el-icon-time"/>
-          <span>{{ scope.row.display_time }}</span>
-        </template>
-      </el-table-column>
-    </el-table>-->
+
+
+
   </div>
 </template>
 
@@ -208,9 +169,10 @@ export default {
         console.log(res.status);
         if (res.status === 88 ) {
           MessageBox.confirm(
-            res.msg,
-            '确定',
+            '<p>'+res.msg+'</p>',
+            '警告',
             {
+              dangerouslyUseHTMLString: true,
               confirmButtonText: '确定',
               cancelButtonText: '取消',
               type: 'warning'

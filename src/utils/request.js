@@ -78,6 +78,12 @@ service.interceptors.response.use(
             location.reload() // 为了重新实例化vue-router对象 避免bug
           })
         })
+      } else {
+        Message({
+            message: res.msg,
+            type: 'error',
+            duration: 5 * 1000
+          })
       }
       return Promise.reject(res)
     } else {

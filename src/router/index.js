@@ -49,7 +49,7 @@ export const constantRouterMap = [
         path: 'index',
         name: 'leoMain',
         component: () => import('@/views/table/index'),
-        meta: { title: 'LEO工作台', icon: 'table' }
+        meta: { title: '精灵工作台', icon: 'table' }
       }
     ]
   },

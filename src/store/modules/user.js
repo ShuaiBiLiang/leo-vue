@@ -5,6 +5,7 @@ const user = {
   state: {
     token: getToken(),
     name: '',
+    endtime:'',
     avatar: '',
     roles: []
   },
@@ -15,6 +16,9 @@ const user = {
     },
     SET_NAME: (state, name) => {
       state.name = name
+    },
+    SET_ENDTIME: (state, endtime) => {
+      state.endtime = endtime
     },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
@@ -32,8 +36,9 @@ const user = {
         login(username, userInfo.password).then(response => {
           const data = response.data
           debugger
-          setToken(data.cookie)
-          commit('SET_TOKEN', data.cookie)
+          setToken(data.token)
+          commit('SET_TOKEN', data.token)
+          sessionStorage.setItem('user', JSON.stringify(data));
           resolve()
         }).catch(error => {
           reject(error)
