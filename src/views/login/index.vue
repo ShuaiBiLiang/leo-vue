@@ -29,7 +29,8 @@
         </el-button>
       </el-form-item>
       <div class="tips">
-        <span style="margin-right:20px;">微信号：g2670847</span>
+        <span style="margin:10px; font-size:16px;">客服微信号：taobaoxiaoer01</span><br><br>
+        <img class="pic-404" src="@/assets/404_images/wxh.png" alt="404">
         <!--<span>QQ：543715038</span>-->
       </div>
     </el-form>
@@ -121,7 +122,13 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 $bg:#2d3a4b;
 $light_gray:#eee;
-
+.pic-404 {
+  position: relative;
+  /*float: left;*/
+  text-align:center;
+  width: 200px;
+  overflow: hidden;
+}
 /* reset element-ui css */
 .login-container {
   .el-input {
@@ -174,6 +181,7 @@ $light_gray:#eee;
     font-size: 14px;
     color: #fff;
     margin-bottom: 10px;
+    text-align: center;
     span {
       &:first-of-type {
         margin-right: 16px;
