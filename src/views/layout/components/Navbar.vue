@@ -3,15 +3,27 @@
   <el-menu class="navbar" mode="horizontal">
     <hamburger :toggle-click="toggleSideBar" :is-active="sidebar.opened" class="hamburger-container"/>
     <breadcrumb />
-<div class="avatar-container">
-  <span style="padding: 10px;color:#97a8be;" >{{ user.name }}</span>
-  <span style="padding: 10px;color:#97a8be;" >到期时间：{{ user.endtime| filterBirthDay}}</span>
-  <span style="padding: 10px;color:#97a8be;" >剩余：{{ user.days}}天</span>
+    <div class="avatar-container">
+      <span style="padding: 10px;color:#97a8be;" >{{ user.name }}</span>
+      <!--<span style="padding: 10px;color:#97a8be;" >到期时间：{{ user.endtime| filterBirthDay}}</span>
+      <span style="padding: 10px;color:#97a8be;" >剩余：{{ user.days}}天</span>-->
+      <span id="times_wrap" class="time_num">
+        剩余时间：
+        <span class="time_w">
+          <b id="times_d" class="time"> </b>天
+          <b id="times_h" class="time"> </b>时
+          <b id="times_m" class="time"> </b>分
+          <b id="times_s" class="time"> </b>秒
+        </span>
+      </span>
+
   <span style="padding: 10px;color:#97a8be;" >单日可挂号数：{{ user.useSize}}</span>
   <el-button type="text" style="padding: 10px;font-size:16px" @click="logout">退出</el-button>
   <!--<el-button type="text" style="padding: 10px;font-size:16px" @click="modifyPwd">修改密码</el-button>-->
   <el-button type="text" style="padding: 10px;font-size:16px" @click="modifyPwd">修改密码</el-button>
-</div>
+    </div>
+  </el-menu>
+
     <!--<el-dropdown class="avatar-container" >
 
       &lt;!&ndash;<div class="avatar-wrapper">
@@ -30,7 +42,6 @@
       </el-dropdown-menu>&ndash;&gt;
     </el-dropdown>-->
 
-  </el-menu>
 
     <div class="reset-container">
 
@@ -108,6 +119,7 @@ export default {
       user:null,
       dialogShow:true,
       dialogFormVisible:false,
+      time_end:null,
       form:{
           id:null,
         oldPwd:null,
@@ -118,6 +130,7 @@ export default {
         oldPwd: [{required: true, message: '请输入旧密码', trigger: 'blur'}],
       },
       pwdType: 'password',
+      timeOutVar:null,
     }
   }
 ,
@@ -134,6 +147,13 @@ export default {
   created(){
     let userInfo = sessionStorage.getItem('user');
     this.user = userInfo ? JSON.parse(userInfo):null;
+
+  },
+  mounted(){
+    if(this.user){
+      this.time_end = this.user.endtime;
+      this.show_time();
+    }
   },
   methods: {
     toggleSideBar() {
@@ -182,6 +202,55 @@ export default {
         this.pwdType = 'password'
       }
     },
+    show_time(){
+
+      debugger
+      var time_wrap = document.getElementById("times_wrap");
+      var time_d = document.getElementById("times_d");
+      var time_h = document.getElementById("times_h");
+      var time_m = document.getElementById("times_m");
+      var time_s = document.getElementById("times_s");
+
+      var time_now = new Date(); // 获取当前时间
+      time_now = time_now.getTime();
+      var time_distance = this.time_end - time_now; // 结束时间减去当前时间
+      var int_day, int_hour, int_minute, int_second;
+      if(time_distance >= 0){
+        // 天时分秒换算
+        int_day = Math.floor(time_distance/86400000)
+        time_distance -= int_day * 86400000;
+        int_hour = Math.floor(time_distance/3600000)
+        time_distance -= int_hour * 3600000;
+        int_minute = Math.floor(time_distance/60000)
+        time_distance -= int_minute * 60000;
+        int_second = Math.floor(time_distance/1000)
+
+        // 时分秒为单数时、前面加零站位
+        if(int_hour < 10)
+          int_hour = "0" + int_hour;
+        if(int_minute < 10)
+          int_minute = "0" + int_minute;
+        if(int_second < 10)
+          int_second = "0" + int_second;
+
+        // 显示时间
+        time_d.innerHTML = int_day;
+        time_h.innerHTML = int_hour;
+        time_m.innerHTML = int_minute;
+        time_s.innerHTML = int_second;
+
+        this.timeOutVar = setTimeout(() => {
+          this.show_time();
+        }, 1000);
+      }else{
+        time_d.innerHTML = time_d.innerHTML;
+        time_h.innerHTML = time_h.innerHTML;
+        time_m.innerHTML = time_m.innerHTML;
+        time_s.innerHTML = time_s.innerHTML;
+
+        // clearTimeout(timerID)
+      }
+    }
   }
 }
 </script>
@@ -195,6 +264,9 @@ export default {
   border-radius: 0px !important;
   .avatar-wrapper{
     font-size:35px;
+  }
+  .time_num{
+    padding: 10px;color:#97a8be;
   }
   .hamburger-container {
     line-height: 58px;
