@@ -116,7 +116,7 @@ export default {
       }
     }
     return {
-      user:null,
+      user:{name:'',endtime:'',useSize:''},
       dialogShow:true,
       dialogFormVisible:false,
       time_end:null,
@@ -145,11 +145,20 @@ export default {
     ])
   },
   created(){
+    debugger
     let userInfo = sessionStorage.getItem('user');
-    this.user = userInfo ? JSON.parse(userInfo):null;
+    if(userInfo){
+      this.user = JSON.parse(userInfo);
+    }else {
+      this.$router.push({ path: '/login' })
+    }
 
   },
   mounted(){
+    debugger
+    if(!sessionStorage.getItem('user')){
+      this.$router.push({ path: '/form/index' })
+    }
     if(this.user){
       this.time_end = this.user.endtime;
       this.show_time();
@@ -258,6 +267,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
   $bg:#2d3a4b;
   $light_gray:#eee;
+  $dark_gray:#889aa4;
 .navbar {
   height: 50px;
   line-height: 50px;
@@ -302,6 +312,15 @@ export default {
         font-size: 12px;
       }
     }
+  }
+  .show-pwd {
+    position: absolute;
+    right: 10px;
+    top: 7px;
+    font-size: 16px;
+    color: $dark_gray;
+    cursor: pointer;
+    user-select: none;
   }
 }
 
