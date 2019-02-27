@@ -149,15 +149,13 @@ export default {
     let userInfo = sessionStorage.getItem('user');
     if(userInfo){
       this.user = JSON.parse(userInfo);
-    }else {
-      this.$router.push({ path: '/login' })
     }
 
   },
   mounted(){
     debugger
     if(!sessionStorage.getItem('user')){
-      this.$router.push({ path: '/form/index' })
+      this.logout();
     }
     if(this.user){
       this.time_end = this.user.endtime;

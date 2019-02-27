@@ -457,8 +457,13 @@ export default {
       let orders = [];
       this.userList.forEach(function(row,index,array){
         let order = { name: row.name, cookie: row.cookie };
-        orders.push(order);
+        if(!row.loginError){
+          orders.push(order);
+        }
       })
+      if(orders.length===0){
+        return;
+      }
 
       request({
         url: '/leo/activeCookie',
@@ -480,7 +485,7 @@ export default {
       })
       this.timeOutVar = setTimeout(() => {
         this.timeoutBegin();
-      }, 60000);
+      }, 90000);
     },
     timeoutEnd(){
       clearTimeout(this.timeOutVar)
