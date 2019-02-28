@@ -133,12 +133,15 @@ export default {
       currentPriceTime: null,
       batchPrice:'',
       batchQt:'',
-      timeOutVar:null
+      timeOutVar:null,
+      websock:null,
     }
   },
   created() {
-    // this.fetchData()
-    // this.getCookies()
+    this.initWebSocket();
+  },
+  destroyed() {
+    this.websock.close() //离开路由之后断开websocket连接
   },
   methods: {
     fetchData() {
@@ -186,6 +189,8 @@ export default {
     },
     loginLeo(row, index) {
       let userinfo = row.name+' '+row.pwd+' '+row.code;
+      this.websocketsend("{asdf}");
+
       request({
         url: '/leo/getCookies',
         method: 'post',
@@ -199,17 +204,7 @@ export default {
 
         // Vue.set(row.password,itemLen,{message:"Test add attr",id:itemLen});
       })
-      /*
-      data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
-      request({
-        url: '/leo/getCookies',
-        method: 'post'
-      }).then(response => {
-          console.log(response)
-          this.userList = response.data
-          this.listLoading = false
-        }
-      )*/
+
     },
     delRow(row, index) {
       console.log(row.name)
@@ -489,7 +484,31 @@ export default {
     },
     timeoutEnd(){
       clearTimeout(this.timeOutVar)
-    }
+    },
+    initWebSocket(){ //初始化weosocket
+      const wsuri = "ws://127.0.0.1:80/websocket";
+      this.websock = new WebSocket(wsuri);
+      this.websock.onmessage = this.websocketonmessage;
+      this.websock.onopen = this.websocketonopen;
+      this.websock.onerror = this.websocketonerror;
+      this.websock.onclose = this.websocketclose;
+    },
+    websocketonopen(){ //连接建立之后执行send方法发送数据
+      let actions = {"test":"12345"};
+      this.websocketsend(JSON.stringify(actions));
+    },
+    websocketonerror(){//连接建立失败重连
+      this.initWebSocket();
+    },
+    websocketonmessage(e){ //数据接收
+      const redata = JSON.parse(e.data);
+    },
+    websocketsend(Data){//数据发送
+      this.websock.send(Data);
+    },
+    websocketclose(e){  //关闭
+      console.log('断开连接',e);
+    },
   }
 }
 </script>
