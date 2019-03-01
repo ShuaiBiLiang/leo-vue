@@ -63,7 +63,8 @@
       </el-table-column>
       <el-table-column class-name="status-col" label="是否登录" width="110" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.loginError">登录失败：{{ scope.row.cookie }}</span>
+          <span v-if="scope.row.wait">等待中...</span>
+          <span v-else-if="scope.row.loginError">登录失败：{{ scope.row.cookie }}</span>
           <span v-else>已登录</span>
         </template>
       </el-table-column>
@@ -85,12 +86,12 @@
       <el-table-column align="center" prop="created_at" label="操作">
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
-          <el-button  type="text" @click="loginLeo(scope.row, scope.$index)">重新登陆</el-button>
-          <el-button  type="text" @click="delRow(scope.row, scope.$index)">删除</el-button>
-          <el-button  type="text" @click="commitRow(scope.row, scope.$index)">提交</el-button>
-          <el-button  type="text" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
-          <el-button  type="text" @click="showOrders(scope.row, scope.$index)">查看订单</el-button>
-          <el-button  type="text" @click="cancelOrders(scope.row, scope.$index)">取消订单</el-button>
+          <el-button :loading="scope.row.wait" type="text" @click="loginLeo(scope.row, scope.$index)">重新登陆</el-button>
+          <el-button :loading="scope.row.wait" type="text" @click="delRow(scope.row, scope.$index)">删除</el-button>
+          <el-button :loading="scope.row.wait" type="text" @click="commitRow(scope.row, scope.$index)">提交</el-button>
+          <el-button :loading="scope.row.wait" type="text" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
+          <el-button :loading="scope.row.wait" type="text" @click="showOrders(scope.row, scope.$index)">查看订单</el-button>
+          <el-button :loading="scope.row.wait" type="text" @click="cancelOrders(scope.row, scope.$index)">取消订单</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -170,7 +171,12 @@ export default {
         // console.log(response)
         debugger
         this.timeoutEnd()
-        // this.userList = response.data
+        this.userList = response.data
+
+        this.userList.forEach((row,index,array) => {
+          row.wait = true;
+          this.$set(array,index,row)
+        })
         this.listLoading = false
         this.showDialog = false
         this.timeoutBegin();
@@ -195,9 +201,16 @@ export default {
       })
     },
     loginLeo(row, index) {
+      row.wait = true;
       let userinfo = row.name+' '+row.pwd+' '+row.code;
       // this.websocketsend("{asdf}");
-
+      setTimeout(() => {
+        row.wait = false;
+        this.$message({
+          message: row.name+'登陆，请求超时!',
+          type: 'warning'
+        })
+      }, 90000);
       request({
         url: '/leo/getCookies',
         method: 'post',
@@ -205,8 +218,8 @@ export default {
       }).then(response => {
         debugger
         // this.$nextTick(_ => {
-          row = response.data[0];
-        this.$set(this.userList,index,row)
+        //   row = response.data[0];
+        // this.$set(this.userList,index,row)
         // });
 
         // Vue.set(row.password,itemLen,{message:"Test add attr",id:itemLen});
@@ -306,7 +319,16 @@ export default {
           message: '数量不能小于10',
           type: 'warning'
         })
+        return;
       }
+      row.wait = true;
+      setTimeout(() => {
+        row.wait = false;
+        this.$message({
+          message: row.name+'提交订单，请求超时!',
+          type: 'warning'
+        })
+      }, 90000);
       // this.listLoading = true
       request({
         url: '/leo/commit',
@@ -367,6 +389,14 @@ export default {
       })
     },
     showOrders(row, index) {
+      row.wait = true;
+      setTimeout(() => {
+        row.wait = false;
+        this.$message({
+          message: row.name+'查看订单，请求超时!',
+          type: 'warning'
+        })
+      }, 90000);
       debugger
       // row.list = []
       this.$refs.singleTable1.toggleRowExpansion(row,false);
@@ -412,6 +442,14 @@ export default {
       })
     },
     cancelOrders(row, index) {
+      row.wait = true;
+      setTimeout(() => {
+        row.wait = false;
+        this.$message({
+          message: row.name+'取消订单，请求超时!',
+          type: 'warning'
+        })
+      }, 90000);
       debugger
       this.$refs.singleTable1.toggleRowExpansion(row,false);
       let orders = [];
@@ -518,7 +556,8 @@ export default {
       if(response.msgType === 1){
         // 登录
         let row = response.data;
-        let index = this.userList.length;
+        let index = this.search(this.userList, row);
+        row.wait = false;
         this.$set(this.userList,index,row)
       }else if(response.msgType ===2){
         // 查询订单
@@ -527,6 +566,7 @@ export default {
         this.userList.forEach((row,index,array) => {
           let name = row.name;
           if(name === query_name  && response.data.orderDetails){
+            row.wait = false;
             row.list = response.data.orderDetails;
             // this.$set(row,"list",response.data.orderDetails);
             // this.$nextTick(_ => {
@@ -537,6 +577,15 @@ export default {
       }else if(response.msgType === 3){
         debugger
         let textHtml = '';
+        let query_name = response.data.name;
+
+        this.userList.forEach((row,index,array) => {
+          let name = row.name;
+          if(name === query_name ){
+            row.wait = false;
+          }
+        })
+
         textHtml += response.data.name+":"+response.data.msg +"<br/>";
         this.$confirm(textHtml, '提示', {
           confirmButtonText: '确 定',
@@ -557,6 +606,15 @@ export default {
         this.currentPriceTime = time1;
       }else if(response.msgType === 5){
         let textHtml = '';
+
+        let query_name = response.data.name;
+        this.userList.forEach((row,index,array) => {
+          let name = row.name;
+          if(name === query_name ){
+            row.wait = false;
+          }
+        })
+
         textHtml += response.data.name+"，取消订单成功。数量："+response.data.volume;
         this.$confirm(textHtml, '取消订单提示', {
           confirmButtonText: '确 定',
@@ -577,6 +635,14 @@ export default {
     websocketclose(e){  //关闭
       console.log('断开连接',e);
     },
+    search(arr,user){
+      for(var i=0;i<arr.length;i++){
+        if(arr[i].name == user.name){
+          return i;
+        }
+      }
+      return false;
+    }
   }
 }
 </script>
