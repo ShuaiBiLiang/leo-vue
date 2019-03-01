@@ -196,7 +196,7 @@ export default {
     },
     loginLeo(row, index) {
       let userinfo = row.name+' '+row.pwd+' '+row.code;
-      this.websocketsend("{asdf}");
+      // this.websocketsend("{asdf}");
 
       request({
         url: '/leo/getCookies',
@@ -468,28 +468,27 @@ export default {
           orders.push(order);
         }
       })
-      if(orders.length===0){
-        return;
-      }
-
-      request({
-        url: '/leo/activeCookie',
-        method: 'post',
-        data: orders
-      }).then(response => {
+      if(orders.length>0){
+        request({
+          url: '/leo/activeCookie',
+          method: 'post',
+          data: orders
+        }).then(response => {
+            debugger
+            this.$message({
+              message: '发送请求成功，保持登陆信息有效性!',
+              type: 'warning'
+            })
+          }
+        ).catch(() => {
           debugger
           this.$message({
-            message: '发送请求成功，保持登陆信息有效性!',
+            message: '失败!',
             type: 'warning'
           })
-        }
-      ).catch(() => {
-        debugger
-        this.$message({
-          message: '失败!',
-          type: 'warning'
         })
-      })
+      }
+
       this.timeOutVar = setTimeout(() => {
         this.timeoutBegin();
       }, 90000);
@@ -499,6 +498,7 @@ export default {
     },
     initWebSocket(){ //初始化weosocket
       const wsuri = "ws://120.79.253.140:80/websocket";
+      // const wsuri = "ws://127.0.0.1:8085/websocket";
       this.websock = new WebSocket(wsuri);
       this.websock.onmessage = this.websocketonmessage;
       this.websock.onopen = this.websocketonopen;
