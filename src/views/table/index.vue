@@ -123,7 +123,7 @@ export default {
     return {
       list: null,
       listLoading: false,
-      userList: null,
+      userList: [],
       showDialog: true,
       form: {
         userInfo: ''
@@ -135,10 +135,16 @@ export default {
       batchQt:'',
       timeOutVar:null,
       websock:null,
+      user:null,
     }
   },
   created() {
     this.initWebSocket();
+    let userInfo = sessionStorage.getItem('user');
+    if(userInfo){
+      this.user = JSON.parse(userInfo);
+    }
+
   },
   destroyed() {
     this.websock.close() //离开路由之后断开websocket连接
@@ -154,6 +160,7 @@ export default {
     getCookies() {
       this.timeoutEnd()
       debugger
+      this.userList = [];
       this.listLoading = true
       request({
         url: '/leo/getCookies',
@@ -163,7 +170,7 @@ export default {
         // console.log(response)
         debugger
         this.timeoutEnd()
-        this.userList = response.data
+        // this.userList = response.data
         this.listLoading = false
         this.showDialog = false
         this.timeoutBegin();
@@ -231,31 +238,31 @@ export default {
         const data = { name: row.name, cookie: row.cookie, price: row.price, num: row.qt }
         dataArray.push(data)
       })
-      this.listLoading = true
+      // this.listLoading = true
       request({
         url: '/leo/commit',
         method: 'post',
         data: dataArray
       }).then(response => {
-          debugger
-          let textHtml = '';
-          response.data.forEach(function(value,index,array){
-            textHtml += value.name+":"+value.msg +"<br/>";
-            console.log(value.name+":"+value.msg);
-          })
-          this.listLoading = false
-
-          this.$confirm(textHtml, '提示', {
-            confirmButtonText: '确 定',
-            cancelButtonText: '取 消',
-            closeOnClickModal: false,
-            dangerouslyUseHTMLString: true,
-            type: 'warning'
-          }).then(() => {
-
-          }).catch(() => {
-
-          });
+          // debugger
+          // let textHtml = '';
+          // response.data.forEach(function(value,index,array){
+          //   textHtml += value.name+":"+value.msg +"<br/>";
+          //   console.log(value.name+":"+value.msg);
+          // })
+          // this.listLoading = false
+          //
+          // this.$confirm(textHtml, '提示', {
+          //   confirmButtonText: '确 定',
+          //   cancelButtonText: '取 消',
+          //   closeOnClickModal: false,
+          //   dangerouslyUseHTMLString: true,
+          //   type: 'warning'
+          // }).then(() => {
+          //
+          // }).catch(() => {
+          //
+          // });
       }
       ).catch(() => {
         this.listLoading = false
@@ -300,35 +307,35 @@ export default {
           type: 'warning'
         })
       }
-      this.listLoading = true
+      // this.listLoading = true
       request({
         url: '/leo/commit',
         method: 'post',
         data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
       }).then(response => {
-        debugger
-          this.listLoading = false
-        let textHtml = '';
-        response.data.forEach(function(value,index,array){
-          textHtml += value.name+":"+value.msg +"<br/>";
-          console.log(value.name+":"+value.msg);
-        })
-        this.$message({
-          message: '成功!',
-          type: 'warning'
-        })
-
-        this.$confirm(textHtml, '提示', {
-            confirmButtonText: '确 定',
-            cancelButtonText: '取 消',
-            closeOnClickModal: false,
-            dangerouslyUseHTMLString: true,
-            type: 'warning'
-          }).then(() => {
-
-          }).catch(() => {
-
-          });
+        // debugger
+        //   this.listLoading = false
+        // let textHtml = '';
+        // response.data.forEach(function(value,index,array){
+        //   textHtml += value.name+":"+value.msg +"<br/>";
+        //   console.log(value.name+":"+value.msg);
+        // })
+        // this.$message({
+        //   message: '成功!',
+        //   type: 'warning'
+        // })
+        //
+        // this.$confirm(textHtml, '提示', {
+        //     confirmButtonText: '确 定',
+        //     cancelButtonText: '取 消',
+        //     closeOnClickModal: false,
+        //     dangerouslyUseHTMLString: true,
+        //     type: 'warning'
+        //   }).then(() => {
+        //
+        //   }).catch(() => {
+        //
+        //   });
       }
       ).catch(() => {
         debugger
@@ -341,19 +348,19 @@ export default {
     },
     refreshRow(row, index) {
       debugger
-      this.listLoading = true
+      // this.listLoading = true
       request({
         url: '/leo/price',
         method: 'post',
         data: { userInfo: row.cookie }
       }).then(response => {
-        this.listLoading = false
-          debugger
-          this.currentPrice = response.data.price
-          this.batchPrice = this.currentPrice
-          const time1 = new Date().Format("yyyy-MM-dd hh:mm:ss");
-          console.log(time1)
-          this.currentPriceTime = time1
+        // this.listLoading = false
+        //   debugger
+        //   this.currentPrice = response.data.price
+        //   this.batchPrice = this.currentPrice
+        //   const time1 = new Date().Format("yyyy-MM-dd hh:mm:ss");
+        //   console.log(time1)
+        //   this.currentPriceTime = time1
         }
       ).catch(() => {
         this.listLoading = false
@@ -361,25 +368,28 @@ export default {
     },
     showOrders(row, index) {
       debugger
+      // row.list = []
       this.$refs.singleTable1.toggleRowExpansion(row,false);
+      // row.list = [];
+      // this.$refs.singleTable1.toggleRowExpansion(row,true);
       request({
         url: '/leo/getOrders',
         method: 'post',
         data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
       }).then(response => {
           debugger
-        this.userList.forEach((row,index,array) => {
-          let name = row.name;
-          if(response.data[name]){
-            row.list = response.data[name];
-          }
-        })
-        this.$refs.singleTable1.toggleRowExpansion(row,true);
-
-          this.$message({
-            message: '成功!',
-            type: 'warning'
-          })
+        // this.userList.forEach((row,index,array) => {
+        //   let name = row.name;
+        //   if(response.data[name]){
+        //     row.list = response.data[name];
+        //   }
+        // })
+        // this.$refs.singleTable1.toggleRowExpansion(row,true);
+        //
+        //   this.$message({
+        //     message: '成功!',
+        //     type: 'warning'
+        //   })
           //
           // this.$confirm(textHtml, '提示', {
           //   confirmButtonText: '确 定',
@@ -408,8 +418,10 @@ export default {
       let cookie = row.cookie;
       if(row.list){
         row.list.forEach(function(value,index,array){
-          let order = {cookie:cookie, id:value.id};
-          orders.push(order);
+          if(value.id){
+            let order = {cookie:cookie, id:value.id, name:row.name, volume:value.volume};
+            orders.push(order);
+          }
         })
 
         request({
@@ -486,7 +498,7 @@ export default {
       clearTimeout(this.timeOutVar)
     },
     initWebSocket(){ //初始化weosocket
-      const wsuri = "ws://127.0.0.1:80/websocket";
+      const wsuri = "ws://120.79.253.140:80/websocket";
       this.websock = new WebSocket(wsuri);
       this.websock.onmessage = this.websocketonmessage;
       this.websock.onopen = this.websocketonopen;
@@ -494,14 +506,70 @@ export default {
       this.websock.onclose = this.websocketclose;
     },
     websocketonopen(){ //连接建立之后执行send方法发送数据
-      let actions = {"test":"12345"};
-      this.websocketsend(JSON.stringify(actions));
+      // let actions = {"test":"12345"};
+      // this.websocketsend(JSON.stringify(actions));
+      this.websocketsend(this.user.name);
     },
     websocketonerror(){//连接建立失败重连
       this.initWebSocket();
     },
     websocketonmessage(e){ //数据接收
-      const redata = JSON.parse(e.data);
+      const response = JSON.parse(e.data);
+      if(response.msgType === 1){
+        // 登录
+        let row = response.data;
+        let index = this.userList.length;
+        this.$set(this.userList,index,row)
+      }else if(response.msgType ===2){
+        // 查询订单
+        debugger
+        let query_name = response.data.name;
+        this.userList.forEach((row,index,array) => {
+          let name = row.name;
+          if(name === query_name  && response.data.orderDetails){
+            row.list = response.data.orderDetails;
+            // this.$set(row,"list",response.data.orderDetails);
+            // this.$nextTick(_ => {
+            this.$refs.singleTable1.toggleRowExpansion(row,true);
+            // })
+          }
+        })
+      }else if(response.msgType === 3){
+        debugger
+        let textHtml = '';
+        textHtml += response.data.name+":"+response.data.msg +"<br/>";
+        this.$confirm(textHtml, '提示', {
+          confirmButtonText: '确 定',
+          cancelButtonText: '取 消',
+          closeOnClickModal: false,
+          dangerouslyUseHTMLString: true,
+          type: 'warning'
+        }).then(() => {
+
+        }).catch(() => {
+
+        });
+      }else if(response.msgType === 4){
+        this.currentPrice = response.data.price;
+        this.batchPrice = this.currentPrice;
+        const time1 = new Date().Format("yyyy-MM-dd hh:mm:ss");
+        console.log(time1);
+        this.currentPriceTime = time1;
+      }else if(response.msgType === 5){
+        let textHtml = '';
+        textHtml += response.data.name+"，取消订单成功。数量："+response.data.volume;
+        this.$confirm(textHtml, '取消订单提示', {
+          confirmButtonText: '确 定',
+          cancelButtonText: '取 消',
+          closeOnClickModal: false,
+          dangerouslyUseHTMLString: true,
+          type: 'warning'
+        }).then(() => {
+
+        }).catch(() => {
+
+        });
+      }
     },
     websocketsend(Data){//数据发送
       this.websock.send(Data);

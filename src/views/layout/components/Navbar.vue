@@ -211,7 +211,6 @@ export default {
     },
     show_time(){
 
-      debugger
       var time_wrap = document.getElementById("times_wrap");
       var time_d = document.getElementById("times_d");
       var time_h = document.getElementById("times_h");

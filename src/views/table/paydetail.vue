@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="listIn.length>0">
+    <div v-if="listIn">
 
 
     <el-table
