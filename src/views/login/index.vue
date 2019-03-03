@@ -30,8 +30,8 @@
       </el-form-item>
       <div class="tips">
         <span style="margin:10px; font-size:18px;">客服微信号：taobaoxiaoer01</span><br><br>
-        <img class="pic-404" src="@/assets/404_images/wxh.png" alt="404"><br><br>
-        <span style="margin:10px; font-size:16px;">『微信扫一扫』</span>
+        <!--<img class="pic-404" src="@/assets/404_images/wxh.png" alt="404"><br><br>-->
+        <!--<span style="margin:10px; font-size:16px;">『微信扫一扫』</span>-->
         <!--<span>QQ：543715038</span>-->
       </div>
     </el-form>
