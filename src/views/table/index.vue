@@ -63,11 +63,11 @@
                     v-model.trim="scope.row.code"></el-input>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="是否登陆" width="110" align="center">
+      <el-table-column class-name="status-col" label="是否登录" width="110" align="center">
         <template slot-scope="scope">
           <span v-if="scope.row.waitLogin">等待中...</span>
-          <span v-else-if="scope.row.loginError">登陆失败：{{ scope.row.cookie }}</span>
-          <span v-else>已登陆</span>
+          <span v-else-if="scope.row.loginError">登录失败：{{ scope.row.cookie }}</span>
+          <span v-else>已登录</span>
         </template>
       </el-table-column>
       <el-table-column class-name="status-col" label="价格" width="110" align="center">
@@ -93,7 +93,7 @@
       <el-table-column align="center" prop="created_at" label="操作">
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
-          <el-button :loading="scope.row.waitLogin" type="text" @click="loginLeo(scope.row, scope.$index)">重新登陆</el-button>
+          <el-button :loading="scope.row.waitLogin" type="text" @click="loginLeo(scope.row, scope.$index)">重新登录</el-button>
           <el-button type="text" @click="delRow(scope.row, scope.$index)">删除</el-button>
           <el-button :loading="scope.row.waitCommit" type="text" @click="commitRow(scope.row, scope.$index)">提交</el-button>
           <el-button :loading="waitRefresh" type="text" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
@@ -219,10 +219,10 @@ export default {
       setTimeout(() => {
         if(row.waitLogin){
           row.waitLogin = false;
-          row.result = "登陆返回超时！";
+          row.result = "登录返回超时！";
           this.$set(this.userList,index,row);
           // this.$message({
-          //   message: row.name+'登陆，返回超时!',
+          //   message: row.name+'登录，返回超时!',
           //   type: 'warning'
           // })
         }
@@ -538,7 +538,7 @@ export default {
         }).then(response => {
             debugger
             this.$message({
-              message: '发送请求成功，保持登陆信息有效性!',
+              message: '发送请求成功，保持登录信息有效性!',
               type: 'warning'
             })
           }
