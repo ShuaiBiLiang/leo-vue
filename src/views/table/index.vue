@@ -95,10 +95,10 @@
           <!--<i class="el-icon-time"/>-->
           <el-button :loading="scope.row.waitLogin" type="text" @click="loginLeo(scope.row, scope.$index)">重新登录</el-button>
           <el-button type="text" @click="delRow(scope.row, scope.$index)">删除</el-button>
-          <el-button :loading="scope.row.waitCommit" type="text" @click="commitRow(scope.row, scope.$index)">提交</el-button>
-          <el-button :loading="waitRefresh" type="text" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
-          <el-button :loading="scope.row.waitShowOrders" type="text" @click="showOrders(scope.row, scope.$index)">查看订单</el-button>
-          <el-button :loading="scope.row.waitCancel" type="text" @click="cancelOrders(scope.row, scope.$index)">取消订单</el-button>
+          <el-button :loading="scope.row.waitLogin || scope.row.waitCommit" type="text" @click="commitRow(scope.row, scope.$index)">提交</el-button>
+          <el-button :loading="scope.row.waitLogin || waitRefresh" type="text" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
+          <el-button :loading="scope.row.waitLogin || scope.row.waitShowOrders" type="text" @click="showOrders(scope.row, scope.$index)">查看订单</el-button>
+          <el-button :loading="scope.row.waitLogin || scope.row.waitCancel" type="text" @click="cancelOrders(scope.row, scope.$index)">取消订单</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -217,14 +217,13 @@ export default {
       let userinfo = row.name+' '+row.pwd+' '+row.code;
       // this.websocketsend("{asdf}");
       setTimeout(() => {
-        if(row.waitLogin){
-          row.waitLogin = false;
-          row.result = "登录返回超时！";
-          this.$set(this.userList,index,row);
-          // this.$message({
-          //   message: row.name+'登录，返回超时!',
-          //   type: 'warning'
-          // })
+        let rowTemp = this.searchRow(this.userList,row.name);
+        if(rowTemp.waitLogin){
+          rowTemp.waitLogin = false;
+          this.$message({
+            message: row.name+'刷新价格，返回超时!',
+            type: 'warning'
+          })
         }
       }, 60000);
       request({
@@ -256,7 +255,8 @@ export default {
         return;
       }
       this.multipleSelection.forEach((row,index,array) => {
-        this.commitRow(row,index);
+        let indexTemp = this.search(this.userList,row);
+        this.commitRow(row,indexTemp);
       })
       //
       // const dataArray = []
@@ -333,6 +333,14 @@ export default {
 
     },
     commitRow(row, index) {
+      if(row.loginError){
+        this.$message({
+          message: row.name+'登录失败，不能操作！',
+          type: 'warning'
+        })
+        return
+      }
+
       debugger
       if(row.qt<10){
         this.$message({
@@ -345,10 +353,12 @@ export default {
       row.result = "等待中……";
       this.$set(this.userList,index,row);
       setTimeout(() => {
-        if(row.waitCommit){
-          row.waitCommit = false;
-          row.result = "提交返回超时！";
-          this.$set(this.userList,index,row);
+        let rowTemp = this.searchRow(this.userList,row.name);
+        let rowIndex = this.search(this.userList,rowTemp);
+        if(rowTemp.waitCommit){
+          rowTemp.waitCommit = false;
+          rowTemp.result = "提交返回超时！";
+          this.$set(this.userList,rowIndex,rowTemp);
         }
       }, 60000);
       request({
@@ -358,15 +368,17 @@ export default {
       }).then(response => {
       }
       ).catch(() => {
-        debugger
-        this.listLoading = false
-        this.$message({
-          message: '成功!',
-          type: 'warning'
-        })
+
       })
     },
     refreshRow(row, index) {
+      if(row.loginError){
+        this.$message({
+          message: row.name+'登录失败，不能操作！',
+          type: 'warning'
+        })
+        return
+      }
       debugger
       this.waitRefresh = true
       setTimeout(() => {
@@ -396,14 +408,24 @@ export default {
       })
     },
     showOrders(row, index) {
+      if(row.loginError){
+        this.$message({
+          message: row.name+'登录失败，不能操作！',
+          type: 'warning'
+        })
+        return
+      }
+
       row.waitShowOrders = true;
       row.result = "等待中……";
       this.$set(this.userList,index,row);
       setTimeout(() => {
-        if(row.waitShowOrders){
-          row.waitShowOrders = false;
-          row.result = "查看订单返回超时!";
-          this.$set(this.userList,index,row);
+        let rowTemp = this.searchRow(this.userList,row.name);
+        let rowIndex = this.search(this.userList,rowTemp);
+        if(rowTemp.waitShowOrders){
+          rowTemp.waitShowOrders = false;
+          rowTemp.result = "查看订单返回超时!";
+          this.$set(this.userList,rowIndex,rowTemp);
           // this.$message({
           //   message: row.name+'查看订单，返回超时!',
           //   type: 'warning'
@@ -451,18 +473,14 @@ export default {
       })
     },
     cancelOrders(row, index) {
+      if(row.loginError){
+        this.$message({
+          message: row.name+'登录失败，不能操作！',
+          type: 'warning'
+        })
+        return
+      }
 
-      setTimeout(() => {
-        if(this.waitCancel){
-          row.waitCancel = false;
-          row.result = "取消订单返回超时!";
-          this.$set(this.userList,index,row);
-          // this.$message({
-          //   message: row.name+'取消订单，返回超时!',
-          //   type: 'warning'
-          // })
-        }
-      }, 60000);
       debugger
       this.$refs.singleTable1.toggleRowExpansion(row,false);
       let orders = [];
@@ -502,6 +520,15 @@ export default {
           //   type: 'warning'
           // })
         })
+        setTimeout(() => {
+          let rowTemp = this.searchRow(this.userList,row.name);
+          let rowIndex = this.search(this.userList,rowTemp);
+          if(rowTemp.waitCancel){
+            rowTemp.waitCancel = false;
+            rowTemp.result = "取消订单返回超时!";
+            this.$set(this.userList,rowIndex,rowTemp);
+          }
+        }, 60000);
       }else {
         row.result = "无可取消订单！";
         this.$set(this.userList,index,row)
@@ -562,6 +589,7 @@ export default {
       const wsuri = "ws://120.79.253.140:80/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
       // const wsuri = "ws://127.0.0.1:8085/websocket";
+      // const wsuri = "ws://120.79.253.140:4099/websocket";
       this.websock = new WebSocket(wsuri);
       this.websock.onmessage = this.websocketonmessage;
       this.websock.onopen = this.websocketonopen;
@@ -581,6 +609,7 @@ export default {
     },
     websocketonmessage(e){ //数据接收
       const response = JSON.parse(e.data);
+      debugger
       if(response.msgType === 1){
         // 登录
         let row = response.data;
@@ -716,6 +745,14 @@ export default {
         }
       }
       return false;
+    },
+    searchRow(arr,username){
+      for(var i=0;i<arr.length;i++){
+        if(arr[i].name == username){
+          return arr[i];
+        }
+      }
+      return null;
     }
   }
 }
@@ -728,6 +765,6 @@ export default {
     padding: 5px 0;
   }
   #leo-main .el-table {
-    font-size: 18px;
+    /*font-size: 18px;*/
   }
 </style>

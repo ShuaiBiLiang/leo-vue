@@ -29,7 +29,7 @@ export const constantRouterMap = [
   {
     path: '/',
     component: Layout,
-    redirect: '/login',
+    redirect: '/leoWorkbench/index',
     name: '>>',
     hidden: true,
     children: [{
