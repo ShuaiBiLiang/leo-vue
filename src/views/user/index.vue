@@ -36,7 +36,11 @@
             </el-table-column>
             <el-table-column prop="useSize" label="最大单日挂号数" width="220" fixed sortable>
             </el-table-column>
-
+            <el-table-column prop="days" label="剩余天数" width="120" fixed sortable>
+              <template slot-scope="scope">
+                {{ scope.row.days }}天 {{ scope.row.hours }}小时
+              </template>
+            </el-table-column>
             <el-table-column align="center" label="操作" fixed="right" min-width="120">
               <template slot-scope="scope">
                 <el-button @click="handleUpdate(scope.row)" title="修改">
@@ -111,6 +115,18 @@
           this.loading2 = false;
           let listData = data.data;
           this.page.pageList = listData;
+          var time_now = new Date(); // 获取当前时间
+          time_now = time_now.getTime();
+          this.page.pageList.forEach((row,index,array) => {
+            var time_distance = row.endtime - time_now; // 结束时间减去当前时间
+            if(time_distance >= 0) {
+              row.days = Math.floor(time_distance / 86400000)
+              time_distance -= row.days * 86400000;
+              row.hours =  Math.floor(time_distance/3600000)
+            }else {
+            }
+          })
+
           /*this.page.totalCount = data.data.total;
           this.page.totalPage = (this.page.totalCount + this.page.pageSize - 1) / this.page.pageSize;*/
           this.listLoading = false;

@@ -13,16 +13,19 @@
         </el-form-item>
       </el-form>
     </div>
+    <el-tag type="danger" style="font-size: 18px;">当前价格：{{ currentPrice }}   &nbsp;&nbsp; {{ currentPriceTime }} {{batchPriceMsg}}</el-tag>
+
     <div style="margin: 10px 0px;">
-      <div style="margin: 0 auto;"><span style="color:red;">当前价格：{{ currentPrice }}   &nbsp;&nbsp; {{ currentPriceTime }}</span>
-      </div>
+
       <span><el-button type="primary" @click="batchCancelOrder" style="float:right;margin:0 5px" size="medium" round>批量取消订单</el-button></span>
       <span><el-button type="primary" @click="batchShowOrder" style="float:right;margin:0 5px" size="medium" round>批量查询订单</el-button></span>
       <span><el-button type="primary" @click="batchCommit" style="float:right;margin:0 5px" size="medium" round>批量提交</el-button></span>
 
       <div>
-        <el-input style="width:150px" v-model="batchPrice" placeholder="请输入价格"></el-input><el-button @click="batchUpdatePrice" style="margin:0 5px" size="medium" round>批量填写价格</el-button>
-        <el-input style="width:150px" v-model="batchQt" placeholder="请输入数量"></el-input><el-button @click="batchUpdateQt" style="margin:0 5px" size="medium" round>批量填写数量</el-button>
+        <el-input style="width:120px" v-model="batchPrice" placeholder="请输入价格"></el-input><el-button @click="batchUpdatePrice" style="margin:0 5px" size="medium" round>批量填写价格</el-button>
+        <el-input style="width:120px" v-model="batchQt" placeholder="请输入数量"></el-input><el-button @click="batchUpdateQt" style="margin:0 5px" size="medium" round>批量填写数量</el-button>
+        <!--<span style="color:red;">当前价格：{{ currentPrice }}   &nbsp;&nbsp; {{ currentPriceTime }}</span>-->
+        <!--<el-tag type="danger" style="font-size: 18px;">当前价格：{{ currentPrice }}   &nbsp;&nbsp; {{ currentPriceTime }} {{batchPriceMsg}}</el-tag>-->
       </div>
     </div>
 
@@ -34,63 +37,68 @@
       stripe
       fit
       highlight-current-row
-              style="color: #000;"
+      style="color: #000;"
+      :row-key="getRowKeys"
+      :expand-row-keys="expands"
+      @header-click="expandOrClose"
       @selection-change="handleSelectionChange">
       <el-table-column
         type="selection"
         width="55"/>
-      <el-table-column align="center" label="序号" width="60">
+      <el-table-column align="center" label="序号" label-class-name="color-black" width="60">
         <template slot-scope="scope">
           {{ scope.$index+1 }}
         </template>
       </el-table-column>
-      <el-table-column label="账号名"  width="100">
+      <el-table-column label="账号名" label-class-name="color-black" width="100">
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column label="密码" width="150" align="center" >
+      <el-table-column label="密码" label-class-name="color-black"  width="150" align="center" >
         <template slot-scope="scope">
           <!--<span>{{ scope.row.pwd }}</span>-->
           <el-input :maxlength=20 size="small"
                     v-model.trim="scope.row.pwd"></el-input>
         </template>
       </el-table-column>
-      <el-table-column label="验证码" width="110" align="center">
+      <el-table-column label="验证码" label-class-name="color-black" width="110" align="center">
         <template slot-scope="scope">
           <!--{{ scope.row.code }}-->
           <el-input :maxlength=20 size="small"
                     v-model.trim="scope.row.code"></el-input>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="是否登录" width="110" align="center">
+      <el-table-column  label-class-name="color-black" label="是否登录" width="110" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.waitLogin">等待中...</span>
-          <span v-else-if="scope.row.loginError">登录失败：{{ scope.row.cookie }}</span>
-          <span v-else>已登录</span>
+          <div>
+            <span class='' v-if="scope.row.waitLogin">等待中...</span>
+            <span class='color-red' v-else-if="scope.row.loginError">登录失败：{{ scope.row.cookie }}</span>
+            <span class='color-green' v-else>已登录</span>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="价格" width="110" align="center">
+      <el-table-column class-name="status-col" label-class-name="color-black" label="价格" width="110" align="center">
         <template slot-scope="scope">
           <el-input v-model.trim="scope.row.price" :maxlength="10" size="small" @change="showQt(scope.row.price)"/>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="数量" min="10" width="90" align="center">
+      <el-table-column class-name="status-col" label-class-name="color-black" label="数量" min="10" width="90" align="center">
         <template slot-scope="scope">
           <el-input v-model.trim="scope.row.qt" :maxlength="10" size="small" @change="showQt(scope.row.qt)"/>
         </template>
       </el-table-column>
-      <el-table-column type="expand" width="60" label="+/-" @click="alert('aa');">
+      <el-table-column type="expand" width="120" :label="expandAll?'收起订单':'展开订单'" >
         <template slot-scope="scope">
           <paydetail :list="scope.row.list"></paydetail>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="操作结果" width="150">
+      <el-table-column class-name="status-col" label-class-name="color-black" label="操作结果" width="150">
         <template slot-scope="scope">
-          {{ scope.row.result }}
+          <span :class="scope.row.resultClass">{{ scope.row.result }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" prop="created_at" label="操作">
+      <el-table-column align="center" prop="created_at" label-class-name="color-black" label="操作">
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
           <el-button :loading="scope.row.waitLogin" type="text" @click="loginLeo(scope.row, scope.$index)">重新登录</el-button>
@@ -140,13 +148,20 @@ export default {
       currentPrice: null,
       currentPriceTime: null,
       batchPrice:'',
+      batchPriceMsg:'',
       batchQt:'',
       timeOutVar:null,
       websock:null,
       user:null,
       expandAll:false,
       stopWs:false,
-      waitRefresh:false
+      waitRefresh:false,
+      // 获取row的key值
+      getRowKeys(row) {
+        return row.name;
+      },
+      // 要展开的行，数值的元素是row的key值
+      expands: []
     }
   },
   created() {
@@ -213,6 +228,7 @@ export default {
     loginLeo(row, index) {
       row.waitLogin = true;
       row.result = "等待中……";
+      row.resultClass="";
       this.$set(this.userList,index,row);
       let userinfo = row.name+' '+row.pwd+' '+row.code;
       // this.websocketsend("{asdf}");
@@ -220,12 +236,12 @@ export default {
         let rowTemp = this.searchRow(this.userList,row.name);
         if(rowTemp.waitLogin){
           rowTemp.waitLogin = false;
-          this.$message({
-            message: row.name+'刷新价格，返回超时!',
-            type: 'warning'
-          })
+          // this.$message({
+          //   message: row.name+'登录超时，请稍后再试!',
+          //   type: 'warning'
+          // })
         }
-      }, 60000);
+      }, 300000);
       request({
         url: '/leo/getCookies',
         method: 'post',
@@ -258,53 +274,6 @@ export default {
         let indexTemp = this.search(this.userList,row);
         this.commitRow(row,indexTemp);
       })
-      //
-      // const dataArray = []
-      // if(this.multipleSelection.length === 0){
-      //   this.$message({
-      //     message: '未选中记录!',
-      //     type: 'warning'
-      //   })
-      //   return;
-      // }
-      // this.multipleSelection.forEach(row => {
-      //   const data = { name: row.name, cookie: row.cookie, price: row.price, num: row.qt }
-      //   dataArray.push(data)
-      // })
-      // // this.listLoading = true
-      // request({
-      //   url: '/leo/commit',
-      //   method: 'post',
-      //   data: dataArray
-      // }).then(response => {
-      //     // debugger
-      //     // let textHtml = '';
-      //     // response.data.forEach(function(value,index,array){
-      //     //   textHtml += value.name+":"+value.msg +"<br/>";
-      //     //   console.log(value.name+":"+value.msg);
-      //     // })
-      //     // this.listLoading = false
-      //     //
-      //     // this.$confirm(textHtml, '提示', {
-      //     //   confirmButtonText: '确 定',
-      //     //   cancelButtonText: '取 消',
-      //     //   closeOnClickModal: false,
-      //     //   dangerouslyUseHTMLString: true,
-      //     //   type: 'warning'
-      //     // }).then(() => {
-      //     //
-      //     // }).catch(() => {
-      //     //
-      //     // });
-      // }
-      // ).catch(() => {
-      //   this.listLoading = false
-      //   debugger
-      //   this.$message({
-      //     message: '成功!',
-      //     type: 'warning'
-      //   })
-      // })
     },
     batchShowOrder() {
       if(this.multipleSelection.length === 0){
@@ -342,25 +311,25 @@ export default {
       }
 
       debugger
-      if(row.qt<10){
-        this.$message({
-          message: '数量不能小于10',
-          type: 'warning'
-        })
+      if(!row.price || !row.qt){
+        row.result = "价格和数量必填！";
+        row.resultClass="el-tag el-tag--danger";
         return;
       }
       row.waitCommit = true;
       row.result = "等待中……";
+      row.resultClass="";
       this.$set(this.userList,index,row);
       setTimeout(() => {
         let rowTemp = this.searchRow(this.userList,row.name);
         let rowIndex = this.search(this.userList,rowTemp);
         if(rowTemp.waitCommit){
           rowTemp.waitCommit = false;
-          rowTemp.result = "提交返回超时！";
-          this.$set(this.userList,rowIndex,rowTemp);
+          // rowTemp.result = "提交超时,请稍后再试！";
+          // rowTemp.resultClass="el-tag el-tag--danger";
+          // this.$set(this.userList,rowIndex,rowTemp);
         }
-      }, 60000);
+      }, 200000);
       request({
         url: '/leo/commit',
         method: 'post',
@@ -385,11 +354,13 @@ export default {
         if(this.waitRefresh){
           this.waitRefresh = false;
           this.$message({
-            message: row.name+'刷新价格，返回超时!',
+            message: row.name+'刷新价格，返回超时，请稍后再试!',
             type: 'warning'
           })
+          this.batchPriceMsg = "刷新价格，返回超时，请稍后再试!";
         }
-      }, 90000);
+      }, 300000);
+      this.batchPriceMsg = "";
       request({
         url: '/leo/price',
         method: 'post',
@@ -407,6 +378,35 @@ export default {
 
       })
     },
+    removeExpands(name){
+      this.expands = this.expands.filter(function (item) {
+        return item!==name;
+      })
+    },
+    addExpands(name){
+      this.expands = this.expands.filter(function (item) {
+        return item!==name;
+      })
+      this.expands.push(name);
+    },
+    expandOrClose(column, event){
+      console.log(column)
+      if(column.type == 'expand'){
+        if(this.expands.length >0 && this.expands.length === this.userList.length){
+          this.expandAll = true;
+        }
+
+        if(this.expandAll){
+          this.expands = [];
+        }else {
+          this.userList.forEach((row,index,array) => {
+            this.expands.push(row.name);
+          })
+        }
+        this.expandAll = !this.expandAll;
+      }
+
+    },
     showOrders(row, index) {
       if(row.loginError){
         this.$message({
@@ -418,55 +418,26 @@ export default {
 
       row.waitShowOrders = true;
       row.result = "等待中……";
+      row.resultClass="";
       this.$set(this.userList,index,row);
       setTimeout(() => {
         let rowTemp = this.searchRow(this.userList,row.name);
         let rowIndex = this.search(this.userList,rowTemp);
         if(rowTemp.waitShowOrders){
           rowTemp.waitShowOrders = false;
-          rowTemp.result = "查看订单返回超时!";
-          this.$set(this.userList,rowIndex,rowTemp);
-          // this.$message({
-          //   message: row.name+'查看订单，返回超时!',
-          //   type: 'warning'
-          // })
+          // rowTemp.result = "查询超时，请稍后再试！";
+          // row.resultClass="el-tag el-tag--danger";
+          // this.$set(this.userList,rowIndex,rowTemp);
         }
-      }, 60000);
+      }, 300000);
       debugger
-      // row.list = []
-      this.$refs.singleTable1.toggleRowExpansion(row,false);
-      // row.list = [];
-      // this.$refs.singleTable1.toggleRowExpansion(row,true);
+      this.removeExpands(row.name);
       request({
         url: '/leo/getOrders',
         method: 'post',
         data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
       }).then(response => {
           debugger
-        // this.userList.forEach((row,index,array) => {
-        //   let name = row.name;
-        //   if(response.data[name]){
-        //     row.list = response.data[name];
-        //   }
-        // })
-        // this.$refs.singleTable1.toggleRowExpansion(row,true);
-        //
-        //   this.$message({
-        //     message: '成功!',
-        //     type: 'warning'
-        //   })
-          //
-          // this.$confirm(textHtml, '提示', {
-          //   confirmButtonText: '确 定',
-          //   cancelButtonText: '取 消',
-          //   closeOnClickModal: false,
-          //   dangerouslyUseHTMLString: true,
-          //   type: 'warning'
-          // }).then(() => {
-          //
-          // }).catch(() => {
-          //
-          // });
         }
       ).catch(() => {
 
@@ -482,7 +453,7 @@ export default {
       }
 
       debugger
-      this.$refs.singleTable1.toggleRowExpansion(row,false);
+      this.removeExpands(row.name);
       let orders = [];
       let cookie = row.cookie;
       if(row.list){
@@ -495,42 +466,36 @@ export default {
 
         if(orders.length===0){
           row.result = "无可取消订单！";
+          row.resultClass="el-tag el-tag--danger";
           this.$set(this.userList,index,row)
           return;
         }
         row.waitCancel = true;
         row.result = "等待中……";
+        row.resultClass="";
         this.$set(this.userList,index,row);
         request({
           url: '/leo/cancelOrders',
           method: 'post',
           data: orders
         }).then(response => {
-            // debugger
-            // this.$message({
-            //   message: '成功!',
-            //   type: 'warning'
-            // })
 
           }
         ).catch(() => {
-          // debugger
-          // this.$message({
-          //   message: '失败!',
-          //   type: 'warning'
-          // })
         })
         setTimeout(() => {
           let rowTemp = this.searchRow(this.userList,row.name);
           let rowIndex = this.search(this.userList,rowTemp);
           if(rowTemp.waitCancel){
             rowTemp.waitCancel = false;
-            rowTemp.result = "取消订单返回超时!";
-            this.$set(this.userList,rowIndex,rowTemp);
+            // rowTemp.result = "取消订单返回超时!";
+            // row.resultClass="el-tag el-tag--danger";
+            // this.$set(this.userList,rowIndex,rowTemp);
           }
-        }, 60000);
+        }, 300000);
       }else {
-        row.result = "无可取消订单！";
+        row.result = "请先查询订单，再【取消】订单！";
+        row.resultClass="el-tag el-tag--danger";
         this.$set(this.userList,index,row)
       }
 
@@ -564,10 +529,10 @@ export default {
           data: orders
         }).then(response => {
             debugger
-            this.$message({
-              message: '发送请求成功，保持登录信息有效性!',
-              type: 'warning'
-            })
+            // this.$message({
+            //   message: '发送请求成功，保持登录信息有效性!',
+            //   type: 'warning'
+            // })
           }
         ).catch(() => {
           debugger
@@ -597,8 +562,6 @@ export default {
       this.websock.onclose = this.websocketclose;
     },
     websocketonopen(){ //连接建立之后执行send方法发送数据
-      // let actions = {"test":"12345"};
-      // this.websocketsend(JSON.stringify(actions));
       this.websocketsend(this.user.name);
     },
     websocketonerror(){//连接建立失败重连
@@ -616,11 +579,6 @@ export default {
         let index = this.search(this.userList, row);
         row.waitLogin = false;
         this.$set(this.userList,index,row)
-        // if(row.loginError){
-        //   row.result = "登录失败！";
-        // }else{
-        //   row.result = "登录成功！";
-        // }
       }else if(response.msgType ===2){
         // 查询订单
         debugger
@@ -630,14 +588,13 @@ export default {
           if(name === query_name  && response.data.orderDetails){
             row.waitShowOrders = false;
             row.list = response.data.orderDetails;
-            // this.$set(row,"list",response.data.orderDetails);
-            // this.$nextTick(_ => {
-            this.$refs.singleTable1.toggleRowExpansion(row,true);
-            // })
+            this.addExpands(row.name);
             if(response.data.orderDetails && response.data.orderDetails.length>0){
               row.result = "订单查询成功！";
+              row.resultClass="el-tag el-tag--success";
             }else {
-              row.result = "网络拥堵！订单查询失败！";
+              row.result = "订单查询失败！";
+              row.resultClass="el-tag el-tag--danger";
             }
           }
         })
@@ -645,47 +602,43 @@ export default {
         // 提交订单
         debugger
         let query_name = response.data.name;
+        let iserror = response.data.loginError;
         this.userList.forEach((row,index,array) => {
           let name = row.name;
+
           if(name === query_name ){
             row.waitCommit = false;
-            //response.data.name+":"+
             row.result = response.data.msg;
+            if(iserror){
+              row.resultClass="el-tag el-tag--danger";
+            }else {
+              row.resultClass="el-tag el-tag--success";
+            }
             this.$set(this.userList,index,row)
           }
         })
 
-        // textHtml += response.data.name+":"+response.data.msg +"<br/>";
-        // this.$confirm(textHtml, '提示', {
-        //   confirmButtonText: '确 定',
-        //   cancelButtonText: '取 消',
-        //   closeOnClickModal: false,
-        //   dangerouslyUseHTMLString: true,
-        //   type: 'warning'
-        // }).then(() => {
-        //
-        // }).catch(() => {
-        //
-        // });
       }else if(response.msgType === 4){
         // 刷新价格
         this.currentPrice = response.data.price;
+        let iserror = response.data.loginError;
+        let priceTime = response.data.endTime;
+        if(iserror){
+            this.batchPriceMsg = response.data.msg;
+        }else{
+          this.batchPriceMsg = "";
+        }
         this.batchPrice = this.currentPrice;
         this.waitRefresh = false;
-        const time1 = new Date().Format("yyyy-MM-dd hh:mm:ss");
-        this.currentPriceTime = time1;
+        if(priceTime){
+          this.currentPriceTime =priceTime;
+        }else {
+          const time1 = new Date().Format("yyyy-MM-dd hh:mm:ss");
+          this.currentPriceTime = time1;
+        }
       }else if(response.msgType === 5){
         //取消订单
         debugger
-        // let query_name = response.data.name;
-        // this.userList.forEach((row,index,array) => {
-        //   let name = row.name;
-        //   if(name === query_name ){
-        //     this.$refs.singleTable1.toggleRowExpansion(row,false);
-        //     row.waitCancel = false;
-        //     row.result = name+"，取消订单成功。数量："+response.data.volume;
-        //   }
-        // })
 
         let query_name = response.data.name;
         let cancelSuccess = response.data.cancelSuccess;
@@ -695,25 +648,16 @@ export default {
             row.waitCancel = false;
             if(cancelSuccess){
               row.result = "取消订单成功！";
+              row.resultClass="el-tag el-tag--success";
             }else {
               row.result = "取消订单失败！";
+              row.resultClass="el-tag el-tag--danger";
             }
+
             this.$set(this.userList,index,row)
           }
         })
 
-        // textHtml += response.data.name+"，取消订单成功。数量："+response.data.volume;
-        // this.$confirm(textHtml, '取消订单提示', {
-        //   confirmButtonText: '确 定',
-        //   cancelButtonText: '取 消',
-        //   closeOnClickModal: false,
-        //   dangerouslyUseHTMLString: true,
-        //   type: 'warning'
-        // }).then(() => {
-        //
-        // }).catch(() => {
-        //
-        // });
       }else if(response.msgType===6){
         // 服务器发命令断开连接
         this.stopWs = true;
@@ -757,7 +701,7 @@ export default {
   }
 }
 </script>
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   #leo-main .el-table__expanded-cell[class*=cell] {
     padding: 5px 0px;
   }
@@ -766,5 +710,42 @@ export default {
   }
   #leo-main .el-table {
     /*font-size: 18px;*/
+  }
+  /*#leo-main .el-table th>.cell{*/
+    /*color: #000;*/
+  /*}*/
+
+  .color-black {
+    color: #000;
+  }
+  .color-green {
+    color: #67c23a;
+  }
+  .color-red {
+    color: #CD0000;
+  }
+  .el-table th.el-table__expand-column{
+    /*border-color: transparent;*/
+    color: #409eff;
+    background: transparent;
+    padding-left: 0;
+    padding-right: 0;
+    /*color: #fff;*/
+    /*background-color: #409EFF;*/
+    /*border-color: #409EFF;*/
+    /*display: inline-block;*/
+    /*line-height: 1;*/
+    /*white-space: nowrap;*/
+    cursor: pointer;
+    /*-webkit-appearance: none;*/
+    /*text-align: center;*/
+    /*box-sizing: border-box;*/
+    /*outline: 0;*/
+    /*margin: 0;*/
+    /*transition: .1s;*/
+    /*font-weight: 500;*/
+    /*padding: 12px 20px;*/
+    /*font-size: 14px;*/
+    /*border-radius: 4px;*/
   }
 </style>

@@ -94,9 +94,16 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('Login', this.loginForm).then(() => {
+          this.$store.dispatch('Login', this.loginForm).then((data) => {
+            debugger
+            console.log(data)
             this.loading = false
-            this.$router.push({ path: this.redirect || '/leoWorkbench/index' })
+            if(data.name === 'admin'){
+              this.$router.push({ path: '/user/index' })
+            }else {
+
+              this.$router.push({ path: '/leoWorkbench/index' })
+            }
           }).catch((res) => {
             this.loading = false
             if(res.status && res.status === 98){

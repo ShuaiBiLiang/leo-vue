@@ -27,12 +27,34 @@
         </el-col>
       </el-row>
       <el-row>
+        <el-radio v-model="timeType" label="1" border >到期时间</el-radio>
+        <el-radio v-model="timeType" label="2" border v-if="add">购买天数</el-radio>
+        <el-radio v-model="timeType" label="3" border v-if="!add">续费天数</el-radio>
+      </el-row>
+
+      <el-row v-if="timeType == 2">
+        <el-col :span="12">
+          <el-form-item label="购买天数:" prop="buyDay" class="customClass">
+            <el-input v-model.trim="form.buyDay" placeholder="请输入" maxlength="10">
+            </el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-else-if="timeType == 1">
         <el-col :span="12">
           <el-form-item label="到期时间:" prop="endtime" class="customClass">
             <el-date-picker v-model.trim="form.endtime" type="date"
                             :clearable="false" ref="endtime"
                             :picker-options="pickerOptions">
             </el-date-picker>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-else-if="timeType == 3">
+        <el-col :span="12">
+          <el-form-item label="续费天数:" prop="addDay" class="customClass">
+            <el-input v-model.trim="form.addDay" placeholder="请输入" maxlength="10">
+            </el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -53,6 +75,7 @@
     data () {
 
       return {
+        add:true,
         dialogStatus: '',
         pickerOptions: {// 出生日期不能超过当前时间
           disabledDate (time) {
@@ -71,13 +94,16 @@
           name: null,
           pwd:null,
           useSize:null,
-          endtime:null
+          endtime:null,
+          addDay:null,
+          buyDay:null
         },
         rules1: {
           name: [{required: true, message: '请输入姓名', trigger: 'blur'}],
           pwd: [{required: true, message: '请输入密码', trigger: 'blur'}],
-          endtime: [{required: true, message: '请选择日期', trigger: 'blur'}],
+          // endtime: [{required: true, message: '请选择日期', trigger: 'blur'}],
         },
+        timeType : 2,
         pickerOptions: {// 出生日期不能超过当前时间
           disabledDate (time) {
             return time.getTime() < Date.now();
@@ -99,6 +125,8 @@
             this.form.endtime = new Date(this.form.endtime);
             this.dialogStatus = 'update';
             this.dialogShow = true;
+            this.add = false;
+            this.timeType = 3;
           } else {
             debugger
             this.$refs['form'].resetFields();
@@ -113,6 +141,34 @@
       submitForm (obj) { // 新增角色修改角色提交
         this.$refs[obj].validate((valid) => {
           if (valid) {
+
+            if(this.timeType==1){
+              if(this.form.endtime==undefined || this.form.endtime<0){
+                this.$message.error("到期时间必填！");
+                return;
+              }
+              this.form.buyDay = 0;
+              this.form.addDay = 0;
+            }
+
+            if(this.timeType==2){
+              if(this.form.buyDay==undefined || this.form.buyDay<0){
+                this.$message.error("购买天数必填！");
+                return;
+              }
+              this.form.endtime = 0;
+              this.form.addDay = 0;
+            }
+
+            if(this.timeType==3){
+              if(this.form.addDay==undefined || this.form.addDay<0){
+                this.$message.error("续费天数必填！");
+                return;
+              }
+              this.form.endtime = 0;
+              this.form.buyDay = 0;
+            }
+
             let tip = '';
             this.form.endtime = new Date(this.form.endtime).getTime();
             if (this.dialogStatus === 'create') {

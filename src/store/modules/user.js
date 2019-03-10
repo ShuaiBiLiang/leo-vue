@@ -39,7 +39,7 @@ const user = {
           setToken(data.token)
           commit('SET_TOKEN', data.token)
           sessionStorage.setItem('user', JSON.stringify(data));
-          resolve()
+          resolve(data)
         }).catch(error => {
           reject(error)
         })
