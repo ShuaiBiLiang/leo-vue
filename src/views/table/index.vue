@@ -283,8 +283,10 @@ export default {
         })
         return;
       }
-      this.multipleSelection.forEach(row => {
-        this.showOrders(row);
+      debugger
+      this.multipleSelection.forEach((row,index,array) => {
+        let indexTemp = this.search(this.userList,row);
+        this.showOrders(row,indexTemp);
       })
 
     },
@@ -296,8 +298,9 @@ export default {
         })
         return;
       }
-      this.multipleSelection.forEach(row => {
-        this.cancelOrders(row);
+      this.multipleSelection.forEach((row,index,array) => {
+        let indexTemp = this.search(this.userList,row);
+        this.cancelOrders(row,indexTemp);
       })
 
     },
@@ -408,6 +411,7 @@ export default {
 
     },
     showOrders(row, index) {
+      debugger
       if(row.loginError){
         this.$message({
           message: row.name+'登录失败，不能操作！',
