@@ -8,7 +8,7 @@
     <div v-if="showDialog" class="">
       <el-form ref="form" :model="form" label-width="120px">
         <el-form-item label="账号 密码 验证码">
-          <el-input v-model="form.userInfo" :autosize="{ minRows: 2, maxRows: 4}" style="width:30%;" type="textarea" placeholder="请输入 ‘账号 密码 验证码’ 如果有多个，请换行。"/>
+          <el-input  style="width:400px" v-model="form.userInfo" :autosize="{ minRows: 2, maxRows: 40}" type="textarea" placeholder="请输入 ‘账号 密码 验证码’ 如果有多个，请换行。"/>
           <el-button type="primary" style="width:80px" @click="getCookies">提交</el-button>
         </el-form-item>
       </el-form>
@@ -17,9 +17,9 @@
 
     <div style="margin: 10px 0px;">
 
-      <span><el-button type="primary" @click="batchCancelOrder" style="float:right;margin:0 5px" size="medium" round>批量取消订单</el-button></span>
-      <span><el-button type="primary" @click="batchShowOrder" style="float:right;margin:0 5px" size="medium" round>批量查询订单</el-button></span>
-      <span><el-button type="primary" @click="batchCommit" style="float:right;margin:0 5px" size="medium" round>批量提交</el-button></span>
+      <div><el-button type="primary" @click="batchCancelOrder" style="float:right;margin:0 5px" size="medium" round>批量取消订单</el-button>
+      <el-button type="primary" @click="batchShowOrder" style="float:right;margin:0 5px" size="medium" round>批量查询订单</el-button>
+      <el-button type="primary" @click="batchCommit" style="float:right;margin:0 5px" size="medium" round>批量提交</el-button></div>
 
       <div>
         <el-input style="width:120px" v-model="batchPrice" placeholder="请输入价格"></el-input><el-button @click="batchUpdatePrice" style="margin:0 5px" size="medium" round>批量填写价格</el-button>
@@ -45,31 +45,31 @@
       <el-table-column
         type="selection"
         width="55"/>
-      <el-table-column align="center" label="序号" label-class-name="color-black" width="60">
+      <el-table-column align="center" label="序号" label-class-name="color-black" min-width="60" width="60">
         <template slot-scope="scope">
           {{ scope.$index+1 }}
         </template>
       </el-table-column>
-      <el-table-column label="账号名" label-class-name="color-black" width="100">
+      <el-table-column label="账号名" label-class-name="color-black" min-width="100" width="100">
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column label="密码" label-class-name="color-black"  width="150" align="center" >
+      <el-table-column label="密码" label-class-name="color-black" min-width="50" width="150" align="center" >
         <template slot-scope="scope">
           <!--<span>{{ scope.row.pwd }}</span>-->
           <el-input :maxlength=20 size="small"
                     v-model.trim="scope.row.pwd"></el-input>
         </template>
       </el-table-column>
-      <el-table-column label="验证码" label-class-name="color-black" width="110" align="center">
+      <el-table-column label="验证码" label-class-name="color-black" min-width="50" width="110" align="center">
         <template slot-scope="scope">
           <!--{{ scope.row.code }}-->
           <el-input :maxlength=20 size="small"
                     v-model.trim="scope.row.code"></el-input>
         </template>
       </el-table-column>
-      <el-table-column  label-class-name="color-black" label="是否登录" width="110" align="center">
+      <el-table-column  label-class-name="color-black" label="是否登录" min-width="110" width="110" align="center">
         <template slot-scope="scope">
           <div>
             <span class='' v-if="scope.row.waitLogin">等待中...</span>
@@ -78,27 +78,27 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label-class-name="color-black" label="价格" width="110" align="center">
+      <el-table-column class-name="status-col" label-class-name="color-black" label="价格" min-width="110" width="110" align="center">
         <template slot-scope="scope">
           <el-input v-model.trim="scope.row.price" :maxlength="10" size="small" @change="showQt(scope.row.price)"/>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label-class-name="color-black" label="数量" min="10" width="90" align="center">
+      <el-table-column class-name="status-col" label-class-name="color-black" label="数量"  min-width="80" width="85" align="center">
         <template slot-scope="scope">
           <el-input v-model.trim="scope.row.qt" :maxlength="10" size="small" @change="showQt(scope.row.qt)"/>
         </template>
       </el-table-column>
-      <el-table-column type="expand" width="120" :label="expandAll?'收起订单':'展开订单'" >
+      <el-table-column type="expand" min-width="85" width="85" :label="expandAll?'收起订单':'展开订单'" >
         <template slot-scope="scope">
           <paydetail :list="scope.row.list"></paydetail>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label-class-name="color-black" label="操作结果" width="150">
+      <el-table-column class-name="status-col" label-class-name="color-black" label="操作结果" min-width="150" width="150">
         <template slot-scope="scope">
           <span :class="scope.row.resultClass">{{ scope.row.result }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" prop="created_at" label-class-name="color-black" label="操作">
+      <el-table-column min-width="403" align="center" prop="created_at" label-class-name="color-black" label="操作">
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
           <el-button :loading="scope.row.waitLogin" type="text" @click="loginLeo(scope.row, scope.$index)">重新登录</el-button>
@@ -555,9 +555,9 @@ export default {
       clearTimeout(this.timeOutVar)
     },
     initWebSocket(){ //初始化weosocket
-      const wsuri = "ws://120.79.253.140:80/websocket";
+      // const wsuri = "ws://120.79.253.140:80/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
-      // const wsuri = "ws://127.0.0.1:8085/websocket";
+      const wsuri = "ws://127.0.0.1:8085/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
       this.websock = new WebSocket(wsuri);
       this.websock.onmessage = this.websocketonmessage;
