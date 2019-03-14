@@ -306,10 +306,10 @@ export default {
     },
     commitRow(row, index) {
       if(row.loginError){
-        this.$message({
-          message: row.name+'登录失败，不能操作！',
-          type: 'warning'
-        })
+        // this.$message({
+        //   message: row.name+'登录失败，不能操作！',
+        //   type: 'warning'
+        // })
         return
       }
 
@@ -345,10 +345,10 @@ export default {
     },
     refreshRow(row, index) {
       if(row.loginError){
-        this.$message({
-          message: row.name+'登录失败，不能操作！',
-          type: 'warning'
-        })
+        // this.$message({
+        //   message: row.name+'登录失败，不能操作！',
+        //   type: 'warning'
+        // })
         return
       }
       debugger
@@ -413,10 +413,10 @@ export default {
     showOrders(row, index) {
       debugger
       if(row.loginError){
-        this.$message({
-          message: row.name+'登录失败，不能操作！',
-          type: 'warning'
-        })
+        // this.$message({
+        //   message: row.name+'登录失败，不能操作！',
+        //   type: 'warning'
+        // })
         return;
       }
 
@@ -449,10 +449,10 @@ export default {
     },
     cancelOrders(row, index) {
       if(row.loginError){
-        this.$message({
-          message: row.name+'登录失败，不能操作！',
-          type: 'warning'
-        })
+        // this.$message({
+        //   message: row.name+'登录失败，不能操作！',
+        //   type: 'warning'
+        // })
         return
       }
 
