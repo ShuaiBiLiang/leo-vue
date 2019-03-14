@@ -42,34 +42,34 @@
       :expand-row-keys="expands"
       @header-click="expandOrClose"
       @selection-change="handleSelectionChange">
-      <el-table-column
-        type="selection"
-        width="55"/>
-      <el-table-column align="center" label="序号" label-class-name="color-black" min-width="60" width="60">
+      <el-table-column fixed="left" align="center"
+                       type="selection"
+        width="33"/>
+      <el-table-column fixed="left" align="center" label="序号" label-class-name="color-black" min-width="50">
         <template slot-scope="scope">
           {{ scope.$index+1 }}
         </template>
       </el-table-column>
-      <el-table-column label="账号名" label-class-name="color-black" min-width="100" width="100">
+      <el-table-column fixed="left" label="账号" label-class-name="color-black" min-width="60" align="center" >
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column label="密码" label-class-name="color-black" min-width="50" width="150" align="center" >
+      <el-table-column label="密码" label-class-name="color-black" min-width="50" align="center" >
         <template slot-scope="scope">
           <!--<span>{{ scope.row.pwd }}</span>-->
           <el-input :maxlength=20 size="small"
                     v-model.trim="scope.row.pwd"></el-input>
         </template>
       </el-table-column>
-      <el-table-column label="验证码" label-class-name="color-black" min-width="50" width="110" align="center">
+      <el-table-column label="验证码" label-class-name="color-black" min-width="60" align="center">
         <template slot-scope="scope">
           <!--{{ scope.row.code }}-->
           <el-input :maxlength=20 size="small"
                     v-model.trim="scope.row.code"></el-input>
         </template>
       </el-table-column>
-      <el-table-column  label-class-name="color-black" label="是否登录" min-width="110" width="110" align="center">
+      <el-table-column  label-class-name="color-black" label="是否登录" min-width="80" align="center">
         <template slot-scope="scope">
           <div>
             <span class='' v-if="scope.row.waitLogin">等待中...</span>
@@ -78,27 +78,27 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label-class-name="color-black" label="价格" min-width="110" width="110" align="center">
+      <el-table-column class-name="status-col" label-class-name="color-black" label="价格" min-width="50" align="center">
         <template slot-scope="scope">
           <el-input v-model.trim="scope.row.price" :maxlength="10" size="small" @change="showQt(scope.row.price)"/>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label-class-name="color-black" label="数量"  min-width="80" width="85" align="center">
+      <el-table-column class-name="status-col" label-class-name="color-black" label="数量"  min-width="50" align="center">
         <template slot-scope="scope">
           <el-input v-model.trim="scope.row.qt" :maxlength="10" size="small" @change="showQt(scope.row.qt)"/>
         </template>
       </el-table-column>
-      <el-table-column type="expand" min-width="85" width="85" :label="expandAll?'收起订单':'展开订单'" >
+      <el-table-column type="expand" width="80" :label="expandAll?'收起订单':'展开订单'" >
         <template slot-scope="scope">
           <paydetail :list="scope.row.list"></paydetail>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label-class-name="color-black" label="操作结果" min-width="150" width="150">
+      <el-table-column class-name="status-col" label-class-name="color-black" label="操作结果" min-width="150" align="center">
         <template slot-scope="scope">
           <span :class="scope.row.resultClass">{{ scope.row.result }}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="403" align="center" prop="created_at" label-class-name="color-black" label="操作">
+      <el-table-column min-width="300" align="center" prop="created_at" label-class-name="color-black" label="操作" fixed="right">
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
           <el-button :loading="scope.row.waitLogin" type="text" @click="loginLeo(scope.row, scope.$index)">重新登录</el-button>
@@ -417,7 +417,7 @@ export default {
           message: row.name+'登录失败，不能操作！',
           type: 'warning'
         })
-        return
+        return;
       }
 
       row.waitShowOrders = true;
@@ -718,7 +718,15 @@ export default {
   /*#leo-main .el-table th>.cell{*/
     /*color: #000;*/
   /*}*/
-
+#leo-main .el-table .cell{
+  padding: 0px 3px;
+}
+#leo-main .el-table td, .el-table th {
+  padding: 6px 0;
+}
+#leo-main .el-input__inner{
+  padding: 0 2px;
+}
   .color-black {
     color: #000;
   }
