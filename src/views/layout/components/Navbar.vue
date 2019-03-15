@@ -3,7 +3,7 @@
   <el-menu class="navbar" mode="horizontal">
     <hamburger :toggle-click="toggleSideBar" :is-active="sidebar.opened" class="hamburger-container"/>
     <breadcrumb />
-    <div class="avatar-container" style="width: 650px; top: 5px;">
+    <div class="avatar-container">
       <span style="padding: 10px;color:#97a8be;" >{{ user.name }}</span>
       <!--<span style="padding: 10px;color:#97a8be;" >到期时间：{{ user.endtime| filterBirthDay}}</span>
       <span style="padding: 10px;color:#97a8be;" >剩余：{{ user.days}}天</span>-->

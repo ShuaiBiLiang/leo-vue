@@ -8,7 +8,7 @@
     <div v-if="showDialog" class="">
       <el-form ref="form" :model="form" label-width="120px">
         <el-form-item label="账号 密码 验证码">
-          <el-input  style="width:400px" v-model="form.userInfo" :autosize="{ minRows: 2, maxRows: 6}" type="textarea" placeholder="请输入 ‘账号 密码 验证码’ 如果有多个，请换行。"/>
+          <el-input  style="width:400px" v-model="form.userInfo" :autosize="{ minRows: 2, maxRows: 3}" type="textarea" placeholder="请输入 ‘账号 密码 验证码’ 如果有多个，请换行。"/>
           <el-button type="primary" style="width:80px" @click="getCookies">提交</el-button>
         </el-form-item>
       </el-form>
@@ -101,7 +101,8 @@
       <el-table-column min-width="300" align="center" prop="created_at" label-class-name="color-black" label="操作" >
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
-          <el-button :loading="scope.row.waitLogin" type="text" @click="loginLeo(scope.row, scope.$index)">重新登录</el-button>
+          <el-button :loading="scope.row.waitLogin || scope.row.waitGetCode" type="text" @click="loginLeo(scope.row, scope.$index)">重新登录</el-button>
+          <el-button :loading="scope.row.waitGetCode" type="text" @click="getCode(scope.row, scope.$index)">取验证码</el-button>
           <el-button type="text" @click="delRow(scope.row, scope.$index)">删除</el-button>
           <el-button :loading="scope.row.waitLogin || scope.row.waitCommit" type="text" @click="commitRow(scope.row, scope.$index)">提交</el-button>
           <el-button :loading="scope.row.waitLogin || waitRefresh" type="text" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
@@ -246,6 +247,31 @@ export default {
         url: '/leo/getCookies',
         method: 'post',
         data: { userInfo: userinfo }
+      }).then(response => {
+      })
+
+    },
+    getCode(row, index) {
+      row.waitGetCode = true;
+      row.result = "等待中……";
+      row.resultClass="";
+      this.$set(this.userList,index,row);
+      let userinfo = row.name+' '+row.pwd+' '+row.code;
+      // this.websocketsend("{asdf}");
+      setTimeout(() => {
+        let rowTemp = this.searchRow(this.userList,row.name);
+        if(rowTemp.waitSendCode){
+          rowTemp.waitSendCode = false;
+          // this.$message({
+          //   message: row.name+'登录超时，请稍后再试!',
+          //   type: 'warning'
+          // })
+        }
+      }, 300000);
+      request({
+        url: '/leo/getCode',
+        method: 'post',
+        data: [{ name: row.name, pwd: row.pwd }]
       }).then(response => {
       })
 
@@ -556,10 +582,8 @@ export default {
     },
     initWebSocket(){ //初始化weosocket
       // const wsuri = "ws://120.79.253.140:80/websocket";
-      // const wsuri = "ws://120.79.253.140:4099/websocket";
-      // const wsuri = "ws://120.79.253.140:4098/websocket";
-      const wsuri = "ws://120.79.253.140:8090/websocket";
-      // const wsuri = "ws://127.0.0.1:4099/websocket";
+      const wsuri = "ws://120.79.253.140:80/websocket";
+      // const wsuri = "ws://127.0.0.1:8085/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
       this.websock = new WebSocket(wsuri);
       this.websock.onmessage = this.websocketonmessage;
@@ -668,6 +692,28 @@ export default {
         // 服务器发命令断开连接
         this.stopWs = true;
         this.websock.close();
+      }else if(response.msgType === 7){
+        //获取验证码
+        debugger
+
+        let query_name = response.data.name;
+        let error_flag = response.data.loginError;
+        this.userList.forEach((row,index,array) => {
+          let name = row.name;
+          if(name === query_name ){
+            row.waitGetCode = false;
+            if(!error_flag){
+              row.result = "获取验证码成功！";
+              row.resultClass="el-tag el-tag--success";
+            }else {
+              row.result = "获取验证码失败！"+response.data.msg;
+              row.resultClass="el-tag el-tag--danger";
+            }
+
+            this.$set(this.userList,index,row)
+          }
+        })
+
       }
     },
     websocketsend(Data){//数据发送
