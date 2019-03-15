@@ -558,7 +558,7 @@ export default {
       // const wsuri = "ws://120.79.253.140:80/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
       // const wsuri = "ws://120.79.253.140:4098/websocket";
-      // const wsuri = "ws://120.79.253.140:8090/websocket";
+      const wsuri = "ws://120.79.253.140:8090/websocket";
       // const wsuri = "ws://127.0.0.1:4099/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
       this.websock = new WebSocket(wsuri);
