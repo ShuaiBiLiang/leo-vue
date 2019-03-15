@@ -8,7 +8,7 @@
     <div v-if="showDialog" class="">
       <el-form ref="form" :model="form" label-width="120px">
         <el-form-item label="账号 密码 验证码">
-          <el-input  style="width:400px" v-model="form.userInfo" :autosize="{ minRows: 2, maxRows: 40}" type="textarea" placeholder="请输入 ‘账号 密码 验证码’ 如果有多个，请换行。"/>
+          <el-input  style="width:400px" v-model="form.userInfo" :autosize="{ minRows: 2, maxRows: 6}" type="textarea" placeholder="请输入 ‘账号 密码 验证码’ 如果有多个，请换行。"/>
           <el-button type="primary" style="width:80px" @click="getCookies">提交</el-button>
         </el-form-item>
       </el-form>
@@ -42,15 +42,15 @@
       :expand-row-keys="expands"
       @header-click="expandOrClose"
       @selection-change="handleSelectionChange">
-      <el-table-column fixed="left" align="center"
+      <el-table-column align="center"
                        type="selection"
         width="33"/>
-      <el-table-column fixed="left" align="center" label="序号" label-class-name="color-black" min-width="50">
+      <el-table-column align="center" label="序号" label-class-name="color-black" min-width="50">
         <template slot-scope="scope">
           {{ scope.$index+1 }}
         </template>
       </el-table-column>
-      <el-table-column fixed="left" label="账号" label-class-name="color-black" min-width="60" align="center" >
+      <el-table-column label="账号" label-class-name="color-black" min-width="60" align="center" >
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
@@ -98,7 +98,7 @@
           <span :class="scope.row.resultClass">{{ scope.row.result }}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="300" align="center" prop="created_at" label-class-name="color-black" label="操作" fixed="right">
+      <el-table-column min-width="300" align="center" prop="created_at" label-class-name="color-black" label="操作" >
         <template slot-scope="scope">
           <!--<i class="el-icon-time"/>-->
           <el-button :loading="scope.row.waitLogin" type="text" @click="loginLeo(scope.row, scope.$index)">重新登录</el-button>
@@ -557,7 +557,9 @@ export default {
     initWebSocket(){ //初始化weosocket
       // const wsuri = "ws://120.79.253.140:80/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
-      const wsuri = "ws://127.0.0.1:8085/websocket";
+      // const wsuri = "ws://120.79.253.140:4098/websocket";
+      // const wsuri = "ws://120.79.253.140:8090/websocket";
+      // const wsuri = "ws://127.0.0.1:4099/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
       this.websock = new WebSocket(wsuri);
       this.websock.onmessage = this.websocketonmessage;

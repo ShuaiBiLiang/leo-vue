@@ -4,7 +4,7 @@
 
 
     <el-table
-      height="100px"
+      height="80px"
       :data="listIn"
       v-loading="loading2"
       element-loading-text="加载中，请稍后"
