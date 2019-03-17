@@ -1,5 +1,8 @@
 <template>
   <div>
+    <span>余额：{{AvailableBalance}}</span>
+    <span>收益：{{EarningAccount}}</span>
+
     <div v-if="listIn">
 
 
@@ -48,7 +51,9 @@
       return {
         loading2: false,
         listIn: [],
-        loadSign: true
+        loadSign: true,
+        AvailableBalance:null,
+        EarningAccount:null,
       };
     },
     created () {
