@@ -1,8 +1,11 @@
 <template>
   <div>
-    <span>余额：{{AvailableBalance}}</span>
-    <span>收益：{{EarningAccount}}</span>
 
+    <p v-if="availableBalance" style="float: left; height: 60px; margin-left: 20px;margin-right:10px;margin-top:0px;" class="el-tag">
+      <span >可用币量：{{availableBalance}}</span>
+      <br/>
+      <span >收入账户：{{earningAccount}}</span>
+    </p>
     <div v-if="listIn">
 
 
@@ -37,7 +40,7 @@
     </el-table>
     </div>
     <div v-else>
-      <p>暂无数据</p>
+      <p>暂无订单数据</p>
     </div>
   </div>
 </template>
@@ -46,19 +49,21 @@
 
   export default {
     name: 'dragDetail',
-    props: ['list'],
+    props: ['list','availableBalance','earningAccount'],
     data () {
       return {
         loading2: false,
         listIn: [],
         loadSign: true,
-        AvailableBalance:null,
-        EarningAccount:null,
+        availableBalance:null,
+        earningAccount:null,
       };
     },
     created () {
       debugger
       this.listIn = this.list;
+      // this.availableBalance = this.availableBalance;
+      // this.earningAccount = this.earningAccount;
     },
     methods: {
       queryRecipeList () {

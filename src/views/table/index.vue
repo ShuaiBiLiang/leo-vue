@@ -90,7 +90,7 @@
       </el-table-column>
       <el-table-column type="expand" width="80" :label="expandAll?'收起订单':'展开订单'" >
         <template slot-scope="scope">
-          <paydetail :list="scope.row.list"></paydetail>
+          <paydetail :list="scope.row.list" :availableBalance="scope.row.availableBalance" :earningAccount="scope.row.earningAccount"></paydetail>
         </template>
       </el-table-column>
       <el-table-column class-name="status-col" label-class-name="color-black" label="操作结果" min-width="150" align="center">
@@ -108,6 +108,7 @@
           <el-button :loading="scope.row.waitLogin || waitRefresh" type="text" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
           <el-button :loading="scope.row.waitLogin || scope.row.waitShowOrders" type="text" @click="showOrders(scope.row, scope.$index)">查看订单</el-button>
           <el-button :loading="scope.row.waitLogin || scope.row.waitCancel" type="text" @click="cancelOrders(scope.row, scope.$index)">取消订单</el-button>
+          <el-button :loading="scope.row.waitLogin || scope.row.waitAccount" type="text" @click="showAccount(scope.row, scope.$index)">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -405,6 +406,37 @@ export default {
         }
       ).catch(() => {
 
+      })
+    },
+    showAccount(row, index) {
+      if(row.loginError){
+        return
+      }
+      debugger
+
+      setTimeout(() => {
+        let rowTemp = this.searchRow(this.userList,row.name);
+        let rowIndex = this.search(this.userList,rowTemp);
+        if(rowTemp.waitAccount){
+          rowTemp.waitAccount = false;
+          // rowTemp.result = "提交超时,请稍后再试！";
+          // rowTemp.resultClass="el-tag el-tag--danger";
+          this.$set(this.userList,rowIndex,rowTemp);
+        }
+      }, 200000);
+      row.result = "等待中……";
+      row.resultClass="";
+      row.waitAccount = true;
+      this.$set(this.userList,index,row);
+      this.removeExpands(row.name);
+
+      request({
+        url: '/leo/showAccount',
+        method: 'post',
+        data: [{ name: row.name, cookie: row.cookie }]
+      }).then(response => {
+        }
+      ).catch(() => {
       })
     },
     removeExpands(name){
@@ -713,6 +745,51 @@ export default {
             this.$set(this.userList,index,row)
           }
         })
+
+      }else if(response.msgType === 8){
+        //查看币量、收入
+        debugger
+        let query_name = response.data.name;
+        let error_flag = response.data.loginError;
+        let availableBalance = response.data.availableBalance;
+        let earningAccount = response.data.earningAccount;
+        this.userList.forEach((row,index,array) => {
+          let name = row.name;
+          if(name === query_name ){
+            row.waitAccount = false;
+
+            if(!error_flag){
+              row.result = "查看账户详情成功！";
+              row.resultClass="el-tag el-tag--success";
+              row.availableBalance = availableBalance;
+              row.earningAccount = earningAccount;
+            }else {
+              row.result = "查看账户详情失败！"+response.data.msg;
+              row.resultClass="el-tag el-tag--danger";
+            }
+            this.$set(this.userList,index,row);
+            this.addExpands(name);
+          }
+        })
+
+        // // 查询订单
+        // debugger
+        // let query_name = response.data.name;
+        // this.userList.forEach((row,index,array) => {
+        //   let name = row.name;
+        //   if(name === query_name  && response.data.orderDetails){
+        //     row.waitShowOrders = false;
+        //     row.list = response.data.orderDetails;
+        //     this.addExpands(row.name);
+        //     if(response.data.orderDetails && response.data.orderDetails.length>0){
+        //       row.result = "订单查询成功！";
+        //       row.resultClass="el-tag el-tag--success";
+        //     }else {
+        //       row.result = "订单查询失败！";
+        //       row.resultClass="el-tag el-tag--danger";
+        //     }
+        //   }
+        // })
 
       }
     },
