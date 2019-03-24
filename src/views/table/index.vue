@@ -17,8 +17,9 @@
 
     <div style="margin: 10px 0px;">
 
-      <div><el-button type="primary" @click="batchCancelOrder" style="float:right;margin:0 5px" size="medium" round>批量取消订单</el-button>
-      <el-button type="primary" @click="batchShowOrder" style="float:right;margin:0 5px" size="medium" round>批量查询订单</el-button>
+      <div><!--<el-button type="primary" @click="batchShowAccount" style="float:right;margin:0 5px" size="medium" round>批量看详情</el-button>-->
+        <el-button type="primary" @click="batchCancelOrder" style="float:right;margin:0 5px" size="medium" round>批量取消订单</el-button>
+        <el-button type="primary" @click="batchShowOrder" style="float:right;margin:0 5px" size="medium" round>批量查询订单</el-button>
       <el-button type="primary" @click="batchCommit" style="float:right;margin:0 5px" size="medium" round>批量提交</el-button></div>
 
       <div>
@@ -41,7 +42,10 @@
       :row-key="getRowKeys"
       :expand-row-keys="expands"
       @header-click="expandOrClose"
-      @selection-change="handleSelectionChange">
+      @selection-change="handleSelectionChange"
+      @select="handleSelect"
+      @select-all="handleSelectAll"
+    >
       <el-table-column align="center"
                        type="selection"
         width="33"/>
@@ -73,8 +77,8 @@
         <template slot-scope="scope">
           <div>
             <span class='' v-if="scope.row.waitLogin">等待中...</span>
-            <span class='color-red' v-else-if="scope.row.loginError">登录失败：{{ scope.row.cookie }}</span>
-            <span class='color-green' v-else>已登录</span>
+            <span class='color-green' v-else-if="scope.row.cookie && !scope.row.loginError">已登录</span>
+            <span class='color-red' v-else>登录失败{{ scope.row.loginMsg }}</span>
           </div>
         </template>
       </el-table-column>
@@ -108,7 +112,7 @@
           <el-button :loading="scope.row.waitLogin || waitRefresh" type="text" @click="refreshRow(scope.row, scope.$index)">刷新价格</el-button>
           <el-button :loading="scope.row.waitLogin || scope.row.waitShowOrders" type="text" @click="showOrders(scope.row, scope.$index)">查看订单</el-button>
           <el-button :loading="scope.row.waitLogin || scope.row.waitCancel" type="text" @click="cancelOrders(scope.row, scope.$index)">取消订单</el-button>
-          <el-button :loading="scope.row.waitLogin || scope.row.waitAccount" type="text" @click="showAccount(scope.row, scope.$index)">详情</el-button>
+          <!--<el-button :loading="scope.row.waitLogin || scope.row.waitAccount" type="text" @click="showAccount(scope.row, scope.$index)">详情</el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -151,7 +155,7 @@ export default {
       currentPriceTime: null,
       batchPrice:'',
       batchPriceMsg:'',
-      batchQt:'',
+      batchQt:'100',
       timeOutVar:null,
       websock:null,
       user:null,
@@ -288,6 +292,16 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
+    handleSelect(val, row) {
+      debugger
+      console.log(val);
+      console.log(row);
+      console.log(this.userList);
+    },
+    handleSelectAll(val) {
+      debugger
+      console.log(val);
+    },
     batchCommit() {
 
       if(this.multipleSelection.length === 0){
@@ -331,8 +345,22 @@ export default {
       })
 
     },
+    batchShowAccount() {
+      if(this.multipleSelection.length === 0){
+        this.$message({
+          message: '未选中记录!',
+          type: 'warning'
+        })
+        return;
+      }
+      this.multipleSelection.forEach((row,index,array) => {
+        let indexTemp = this.search(this.userList,row);
+        this.showAccount(row,indexTemp);
+      })
+
+    },
     commitRow(row, index) {
-      if(row.loginError){
+      if(!row.cookie){
         // this.$message({
         //   message: row.name+'登录失败，不能操作！',
         //   type: 'warning'
@@ -371,7 +399,7 @@ export default {
       })
     },
     refreshRow(row, index) {
-      if(row.loginError){
+      if(!row.cookie){
         // this.$message({
         //   message: row.name+'登录失败，不能操作！',
         //   type: 'warning'
@@ -470,7 +498,7 @@ export default {
     },
     showOrders(row, index) {
       debugger
-      if(row.loginError){
+      if(!row.cookie){
         // this.$message({
         //   message: row.name+'登录失败，不能操作！',
         //   type: 'warning'
@@ -497,7 +525,9 @@ export default {
       request({
         url: '/leo/getOrders',
         method: 'post',
-        data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt }]
+        data: [{ name: row.name, cookie: row.cookie, price: row.price, num: row.qt
+                , availableBalance:row.availableBalance
+                ,earningAccount:row.earningAccount}]
       }).then(response => {
           debugger
         }
@@ -506,7 +536,7 @@ export default {
       })
     },
     cancelOrders(row, index) {
-      if(row.loginError){
+      if(!row.cookie){
         // this.$message({
         //   message: row.name+'登录失败，不能操作！',
         //   type: 'warning'
@@ -614,8 +644,8 @@ export default {
     },
     initWebSocket(){ //初始化weosocket
       // const wsuri = "ws://120.79.253.140:80/websocket";
-      // const wsuri = "ws://120.79.253.140:4099/websocket";
-      const wsuri = "ws://127.0.0.1:8085/websocket";
+      const wsuri = "ws://120.79.253.140:4099/websocket";
+      // const wsuri = "ws://127.0.0.1:8085/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
       this.websock = new WebSocket(wsuri);
       this.websock.onmessage = this.websocketonmessage;
@@ -639,12 +669,25 @@ export default {
         // 登录
         let row = response.data;
         let index = this.search(this.userList, row);
+        let arr = this.multipleSelection;
+        let index_selection = arr.findIndex(item => item.name === row.name);
+        arr.splice(index_selection, 1)
+        this.multipleSelection=arr;
         row.waitLogin = false;
         this.$set(this.userList,index,row)
+        if(index_selection>-1){
+          this.$refs.singleTable1.toggleRowSelection(row,true);
+        }
       }else if(response.msgType ===2){
         // 查询订单
         debugger
         let query_name = response.data.name;
+
+        let row = this.searchRow(this.userList,query_name);
+        if(row){
+          this.$refs.singleTable1.toggleRowExpansion(row,false);
+        }
+
         this.userList.forEach((row,index,array) => {
           let name = row.name;
           if(name === query_name  && response.data.orderDetails){
@@ -759,16 +802,16 @@ export default {
             row.waitAccount = false;
 
             if(!error_flag){
-              row.result = "查看账户详情成功！";
-              row.resultClass="el-tag el-tag--success";
+              // row.result = "查看账户详情成功！";
+              // row.resultClass="el-tag el-tag--success";
               row.availableBalance = availableBalance;
               row.earningAccount = earningAccount;
             }else {
-              row.result = "查看账户详情失败！"+response.data.msg;
-              row.resultClass="el-tag el-tag--danger";
+              // row.result = "查看账户详情失败！"+response.data.msg;
+              // row.resultClass="el-tag el-tag--danger";
             }
             this.$set(this.userList,index,row);
-            this.addExpands(name);
+            // this.addExpands(name);
           }
         })
 
