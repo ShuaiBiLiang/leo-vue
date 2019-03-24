@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <p v-if="availableBalance" style="float: left; height: 60px; margin-left: 20px;margin-right:10px;margin-top:0px;" class="el-tag">
+    <p v-if="availableBalance" style="float: left; height: 60px; margin: 10px 15px 0px 20px;" class="el-tag">
       <span >可用币量：Ⱡ{{availableBalance}}</span>
       <br/>
       <span >收入账户：{{earningAccount}}</span>
