@@ -30,9 +30,22 @@
       </el-form-item>
       <div class="tips">
         <span style="margin:10px; font-size:18px;">客服微信号：taobaoxiaoer01</span><br><br>
+
         <!--<img class="pic-404" src="@/assets/404_images/wxh.png" alt="404"><br><br>-->
         <!--<span style="margin:10px; font-size:16px;">『微信扫一扫』</span>-->
         <!--<span>QQ：543715038</span>-->
+      </div>
+      <div>
+        <span style="margin:10px; font-size:18px; ">
+
+          <a style="color:red;" href="http://120.79.253.140/source/%E7%B2%BE%E7%81%B5%E5%B9%B3%E5%8F%B0v1.0.rar"><u>下载精灵平台单机版</u></a>
+          <br>
+          1：下载完，解压文件。<br>
+          2：双击【精灵.exe】启动。
+          <br>
+          <br>
+          <a style="color:red;" href="https://pan.baidu.com/s/1iQCyEydLdbjIAd7A91-vLQ"><u>下载精灵平台单机版--【百度网盘连接】提取码：uqux</u></a>
+        </span>
       </div>
     </el-form>
   </div>
