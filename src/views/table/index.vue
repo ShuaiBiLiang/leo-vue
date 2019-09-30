@@ -643,8 +643,8 @@ export default {
       clearTimeout(this.timeOutVar)
     },
     initWebSocket(){ //初始化weosocket
-      const wsuri = "ws://47.107.57.185:80/websocket";
-      // const wsuri = "ws://120.79.253.140:80/websocket";
+      // const wsuri = "ws://47.107.57.185:80/websocket";
+      const wsuri = "ws://120.79.253.140:8088/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
       // const wsuri = "ws://127.0.0.1:8085/websocket";
       // const wsuri = "ws://120.79.253.140:4099/websocket";
